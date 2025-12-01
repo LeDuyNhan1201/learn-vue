@@ -18,7 +18,6 @@ const {
   isFetching,
 } = useGetTasksQuery();
 
-// Sample data
 const statuses = ref<StatusesResponse>([]);
 const tasks = ref<TasksResponse>([]);
 
@@ -124,47 +123,48 @@ const {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .container {
-  flex: 1; /* fill remaining height under tabs */
+  flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: auto; /* scroll if content exceeds height */
+  overflow: auto;
 }
 
 .board-columns {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--s-2);
+  overflow-x: auto;
+  padding-bottom: var(--s-2);
+  scroll-behavior: smooth;
 
-  overflow-x: auto; /* <-- enables horizontal scroll */
-  padding-bottom: var(--space-2); /* prevents scrollbar overlap */
-  scroll-behavior: smooth; /* optional */
+  /* Optional: Hide vertical scrollbar if needed */
+  /* overflow-y: hidden; */
 }
 
 .board-column {
-  background: var(--color-surface);
-  padding: var(--space-3);
-
-  min-width: var(--kaban-w-normal); /* <-- width of 1 Kanban column */
-  max-width: var(--kaban-w-wide); /* optional */
-
+  background: var(--c-surface);
+  padding: var(--s-3);
+  min-width: var(--w-n);
+  max-width: var(--w-w);
   display: flex;
   flex-direction: column;
-  transition: border .15s ease;
-  border: 1px solid var(--color-border);
-}
 
-/* Hover 'h3' -> change ui of '.board-column' */
-.board-column:has(h3:hover) {
-  border-color: var(--color-primary-hover);
-}
+  border: 1px solid var(--c-border);
+  transition: border 0.15s ease;
 
-.board-column h3 {
-  text-align: start;
-  margin-bottom: var(--space-2);
-  cursor: grab;
-  padding: var(--space-2);
-  transition: border 0.1s ease;
+  /* Hover h3 -> highlight column */
+  &:has(h3:hover) {
+    border-color: var(--c-primary-h);
+  }
+
+  h3 {
+    text-align: start;
+    margin-bottom: var(--s-2);
+    cursor: grab;
+    padding: var(--s-2);
+    transition: border 0.1s ease;
+  }
 }
 
 .board-card-container {
@@ -173,30 +173,32 @@ const {
 }
 
 .board-card {
-  background: var(--color-bg);
-  padding: var(--space-2);
-  margin-bottom: var(--space-2);
-  border: 1px solid var(--color-border);
+  background: var(--c-bg);
+  padding: var(--s-2);
+  margin-bottom: var(--s-2);
+  border: 1px solid var(--c-border);
   cursor: pointer;
+  transition: border 0.15s ease;
+
+  &:hover {
+    border-color: var(--c-primary-h);
+  }
 }
 
-.board-card:hover {
-  border: 1px solid var(--color-primary-hover);
-}
-
+/* Highlight states */
 .highlight-left {
-  box-shadow: inset 4px 0 0 var(--color-primary-hover);
+  box-shadow: inset 4px 0 0 var(--c-primary-h);
 }
 
 .highlight-right {
-  box-shadow: inset -4px 0 0 var(--color-primary-hover);
+  box-shadow: inset -4px 0 0 var(--c-primary-h);
 }
 
 .highlight-top {
-  box-shadow: inset 0 4px 0 var(--color-primary-hover);
+  box-shadow: inset 0 4px 0 var(--c-primary-h);
 }
 
 .highlight-bottom {
-  box-shadow: inset 0 -4px 0 var(--color-primary-hover);
+  box-shadow: inset 0 -4px 0 var(--c-primary-h);
 }
 </style>

@@ -109,7 +109,8 @@ async function onSubmit() {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+/* FORM CONTAINER */
 .container {
   min-height: 100vh;
   display: flex;
@@ -117,66 +118,67 @@ async function onSubmit() {
   align-items: center;
 }
 
+/* FORM */
 form {
   width: 500px;
-  padding: var(--space-6);
-  background: var(--color-bg);
-  border: 1px solid var(--color-border);
-}
+  padding: var(--s-6);
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
 
-.form-title {
-  text-align: start;
-  margin-bottom: var(--space-6);
-}
+  /* Form title */
+  .form-title {
+    text-align: start;
+    margin-bottom: var(--s-6);
+  }
 
-/* Form group */
-form > div {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: var(--space-4);
-}
+  /* Form group */
+  > div {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: var(--s-4);
 
-/* Label */
-label {
-  font-weight: var(--font-weight-bold);
-  margin-bottom: var(--space-2);
-}
+    label {
+      font-weight: var(--f-bold);
+      margin-bottom: var(--s-2);
+    }
 
-/* Input + Select */
-input,
-select {
-  padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--color-border);
-  background: var(--color-bg);
-  transition: all 0.2s ease;
-  outline: none;
-}
+    input,
+    select {
+      padding: var(--s-2) var(--s-4);
+      border: 1px solid var(--c-border);
+      background: var(--c-bg);
+      transition: 0.2s ease;
+      outline: none;
 
-input:focus,
-select:focus {
-  border-color: var(--color-primary-hover);
-  box-shadow: var(--box-shadow-text-box);
-}
+      &:focus {
+        border-color: var(--c-primary-h);
+        box-shadow: var(--shadow-text);
+      }
+    }
 
-/* Error state */
-.error input,
-.error select {
-  border-color: var(--color-error-msg) !important;
-  background: var(--color-error-bg);
-}
+    /* Error group */
+    &.error {
+      input,
+      select {
+        border-color: var(--c-err) !important;
+        background: var(--c-err-bg);
+      }
 
-.input-errors {
-  margin-top: var(--space-1);
-}
+      .input-errors {
+        margin-top: var(--s-1);
 
-.error-msg {
-  color: var(--color-error-msg);
-}
+        .error-msg {
+          color: var(--c-err);
+        }
+      }
+    }
+  }
 
-/* Submit Button */
-button[type="button"] {
-  width: 100%;
-  margin-top: var(--space-1);
+  /* Submit button inside form */
+  button[type="button"] {
+    width: 100%;
+    margin-top: var(--s-1);
+  }
 }
 
 </style>

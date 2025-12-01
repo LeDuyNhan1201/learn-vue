@@ -1,5 +1,4 @@
-import { createApp } from 'vue'
-import '@/style.css'
+import {createApp} from 'vue'
 import App from '@/App.vue'
 import {createPinia} from "pinia";
 import router from "@/router";
@@ -11,6 +10,10 @@ import InputText from "primevue/inputtext";
 import DatePicker from "primevue/datepicker";
 import Select from "primevue/select";
 import Button from "primevue/button";
+import TabMenu from 'primevue/tabmenu';
+import DataTable from 'primevue/datatable';
+import '@/style.scss';
+import '@/styles/primevue-overrides.scss';
 
 const app = createApp(App);
 const pinia = createPinia()
@@ -25,7 +28,7 @@ const queryClient = new QueryClient({
 
 app.use(pinia)
 app.use(router);  // <-- apply router here
-app.use(VueQueryPlugin, { queryClient });
+app.use(VueQueryPlugin, {queryClient});
 
 app.use(PrimeVue);
 app.component("Dialog", Dialog);
@@ -33,6 +36,8 @@ app.component("InputText", InputText);
 app.component("DatePicker", DatePicker);
 app.component("Select", Select);
 app.component("Button", Button);
+app.component("TabMenu", TabMenu);
+app.component("DataTable", DataTable);
 
 // --- init user store from cookie ---
 const userStore = useUserStore();

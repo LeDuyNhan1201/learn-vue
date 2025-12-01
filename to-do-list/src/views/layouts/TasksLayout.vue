@@ -6,31 +6,36 @@ import Navigation from "@/components/TasksDashboard/Navigation.vue";
 
 <template>
   <div class="container">
-    <Navigation class="nav-bar"/>
+    <Navigation class="nav-bar" />
 
     <main>
       <router-view v-slot="{ Component }">
-        <component :is="Component"/>
+        <component :is="Component" />
       </router-view>
     </main>
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-}
 
-main {
-  /*overflow-y: auto;*/
-  padding: var(--space-2) var(--space-4);
-  margin-top: var(--space-2);
-  border: 1px solid var(--color-border);
-  flex: 1;          /* take remaining height below nav-bar */
-  display: flex;
-  flex-direction: column;
-  overflow: hidden; /* optional, prevents overflow scroll */
+  .nav-bar {
+    flex-shrink: 0;
+  }
+
+  main {
+    padding: var(--s-2) var(--s-4);
+    margin-top: var(--s-2);
+
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    border: 1px solid var(--c-border);
+    overflow: hidden;
+  }
 }
 </style>

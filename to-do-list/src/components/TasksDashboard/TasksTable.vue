@@ -74,6 +74,7 @@ const show = ref<boolean>(false);
 <template>
   <div class="filter-bar">
     <input
+        v-model="filters.keyword"
         class="search-input"
         placeholder="Search..."
     />
@@ -164,110 +165,110 @@ const show = ref<boolean>(false);
 <style scoped>
 .filter-bar {
   display: flex;
-  max-height: 50px;
   flex-direction: row;
-  gap: var(--space-4);
-  margin-bottom: var(--space-4);
+  gap: var(--s-4);
+  max-height: 50px;
+  margin-bottom: var(--s-4);
+
+  button {
+    flex: 1;
+  }
 }
 
 .search-input {
   flex: 8;
-  padding: var(--space-3) var(--space-4);
-  border: 1px solid var(--color-border);
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid var(--c-border);
+  background: #fff;
   transition: all 0.2s ease;
-  background: white;
-}
 
-.filter-bar > button {
-  flex: 1;
-}
-
-.search-input:focus {
-  border-color: var(--color-primary-hover);
-  outline: none;
+  &:focus {
+    border-color: var(--c-primary-h);
+    outline: none;
+  }
 }
 
 .table-wrapper {
-  height: calc(var(--header-height) + var(--row-height) * 8 + var(--space-5));
+  height: calc(var(--h-header) + var(--h-row) * 8 + var(--s-5));
 }
 
 .task-table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 0; /* để sát nhau nhưng không collapse */
-  overflow: auto; /* scroll if needed */
-}
+  border-spacing: 0;
+  overflow: auto;
 
-.task-table tbody {
-  height: 100%; /* tbody fill table */
-}
+  tbody {
+    height: 100%;
+  }
 
-.task-table th {
-  height: var(--header-height);
-  background: var(--color-surface);
-  font-weight: var(--font-weight-base);
-  cursor: grab;
-}
+  th {
+    height: var(--h-header);
+    background: var(--c-surface);
+    font-weight: var(--f-weight);
+    cursor: grab;
 
-.task-table th,
-.task-table td {
-  text-align: start;
-  padding: var(--space-4) var(--space-6);
-  border: 1px solid transparent;
-  border-bottom: 1px solid var(--color-border);
-}
+    &:hover {
+      border-color: var(--c-primary-h);
+    }
+  }
 
-.task-table td {
-  height: var(--row-height);
-}
+  th,
+  td {
+    text-align: start;
+    padding: var(--s-4) var(--s-6);
+    border: 1px solid transparent;
+    border-bottom: 1px solid var(--c-border);
+  }
 
-.task-table td a {
-  color: var(--color-text);
-}
+  td {
+    height: var(--h-row);
 
-.task-table th:hover {
-  border-color: var(--color-primary-hover);
+    a {
+      color: var(--c-text);
+    }
+  }
 }
 
 .highlight-left {
-  box-shadow: inset 4px 0 0 var(--color-primary-hover);
+  box-shadow: inset 4px 0 0 var(--c-primary-h);
 }
 
 .highlight-right {
-  box-shadow: inset -4px 0 0 var(--color-primary-hover);
+  box-shadow: inset -4px 0 0 var(--c-primary-h);
 }
 
+/* ---------------- Pagination ---------------- */
 .pagination {
-  margin-top: var(--space-6);
+  margin-top: var(--s-6);
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: var(--space-3);
-}
+  gap: var(--s-3);
 
-.pagination > span {
-  font-weight: var(--font-weight-bold);
-}
+  span {
+    font-weight: var(--f-bold);
+  }
 
-.pagination button {
-  padding: var(--space-2) var(--space-3);
-  border-radius: 6px;
-  border: 1px solid var(--color-border);
-  cursor: pointer;
-  background: white;
-}
+  button {
+    padding: var(--s-2) var(--s-3);
+    border-radius: var(--r-sm);
+    border: 1px solid var(--c-border);
+    background: #fff;
+    cursor: pointer;
 
-.pagination button:hover:not(:disabled) {
-  background: var(--color-surface);
-  font-weight: var(--font-weight-base);
-  color: var(--color-text);
-}
+    &:hover:not(:disabled) {
+      background: var(--c-surface);
+      font-weight: var(--f-weight);
+      color: var(--c-text);
+    }
 
-.pagination button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  font-weight: var(--font-weight-base);
-  color: var(--color-text);
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      font-weight: var(--f-weight);
+      color: var(--c-text);
+    }
+  }
 }
-
 </style>

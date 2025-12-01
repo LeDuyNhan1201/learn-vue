@@ -36,37 +36,37 @@ onActivated(() => {
   </main>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .tabs {
-  flex-shrink: 0; /* tabs stay fixed height */
   display: flex;
-  gap: var(--space-4);
-  margin-top: var(--space-4);
-  margin-bottom: var(--space-4);
+  gap: var(--s-4);
+  margin: var(--s-4) 0;
+  flex-shrink: 0;
+
+  .tab {
+    padding: var(--s-2) var(--s-4);
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--c-text);
+    border-bottom: 3px solid var(--c-border);
+    transition: color 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+      color: var(--c-primary-h);
+    }
+
+    &.active {
+      border-bottom-color: var(--c-primary-h);
+      color: var(--c-primary-h);
+      font-weight: var(--f-bold);
+    }
+  }
 }
 
-.tab {
-  padding: var(--space-2) var(--space-4);
-  cursor: pointer;
-  border-bottom: 3px solid var(--color-border);
-  text-decoration: none;
-  color: var(--color-text);
-}
-
-.tab.active {
-  border-bottom-color: var(--color-primary-hover);
-  color: var(--color-primary-hover);
-  font-weight: bold;
-}
-
-.tab:hover {
-  color: var(--color-primary-hover);
-}
-
-main {
-  flex: 1; /* fill remaining height under tabs */
+#tasks-content {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: auto; /* scroll if content exceeds height */
+  overflow: auto;
 }
 </style>

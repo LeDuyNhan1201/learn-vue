@@ -1,0 +1,163 @@
+/* ------------------ VARIABLES ------------------ */
+:root {
+    /* Typography */
+    --f-base: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    --f-size: 16px;
+    --f-weight: 500;
+    --f-bold: 700;
+    --lh: 1.5;
+
+    /* Spacing */
+    --s-1: 0.25rem;
+    --s-2: 0.5rem;
+    --s-3: 0.75rem;
+    --s-4: 1rem;
+    --s-5: 1.25rem;
+    --s-6: 1.5rem;
+    --s-8: 2rem;
+
+    /* Kaban widths */
+    --w-c: 320px;
+    --w-n: 360px;
+    --w-w: 400px;
+
+    /* Border radius */
+    --r-sm: 4px;
+    --r-md: 8px;
+
+    /* Colors */
+    --c-text: #1a1a1a;
+    --c-muted: #555;
+    --c-bg: #fff;
+    --c-border: #e3e3e3;
+    --c-err: #ef4444;
+    --c-err-bg: #fff5f5;
+    --c-primary: #646cff;
+    --c-primary-h: #535bf2;
+    --c-surface: #f7f7f7;
+
+    /* Dark mode support */
+    color-scheme: light dark;
+
+    --shadow-text: 0 0 0 3px rgba(99, 102, 241, 0.25);
+
+    --h-row: calc(var(--s-6) + var(--s-4) * 2);
+    --h-header: calc(var(--s-6) + var(--s-4) * 2);
+}
+
+/* ------------------ DARK MODE ------------------ */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --c-text: rgba(255, 255, 255, 0.87);
+        --c-bg: #242424;
+        --c-surface: #1a1a1a;
+        --c-primary-h: #747bff;
+    }
+}
+
+/* ------------------ RESET ------------------ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ------------------ BODY ------------------ */
+body {
+    font-family: var(--f-base), ui-monospace;
+    font-size: var(--f-size);
+    line-height: var(--lh);
+    background: var(--c-bg);
+    color: var(--c-text);
+
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* ------------------ SCROLLBAR ------------------ */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--c-border) transparent;
+
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: var(--c-border);
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: var(--c-surface);
+        border-radius: 8px;
+
+        &:hover {
+            background: var(--c-muted);
+        }
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    * {
+        scrollbar-color: var(--c-muted) var(--c-text);
+
+        &::-webkit-scrollbar-thumb {
+            background: var(--c-muted);
+        }
+
+        &::-webkit-scrollbar-track {
+            background: var(--c-text);
+        }
+    }
+}
+
+/* ------------------ LINKS ------------------ */
+a {
+    font-weight: 500;
+    color: var(--c-primary);
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--c-primary-h);
+    }
+}
+
+/* ------------------ BUTTONS ------------------ */
+button {
+    border: 1px solid transparent;
+    padding: var(--s-3) var(--s-4);
+    font-size: 1rem;
+    font-weight: var(--f-weight);
+    background: var(--c-surface);
+    cursor: pointer;
+    transition: border-color 0.25s ease, background 0.25s ease;
+
+    &:hover {
+        background: var(--c-primary-h);
+        font-weight: var(--f-bold);
+        color: #fff;
+    }
+}
+
+/* ------------------ UTILITIES ------------------ */
+.card {
+    padding: var(--s-4);
+    background: var(--c-surface);
+    border-radius: var(--r-md);
+    border: 1px solid var(--c-border);
+}
+
+/* ------------------ APP ROOT ------------------ */
+#app {
+    width: 100%;
+    min-height: 100vh;
+}
+
+.error-msg {
+    color: var(--c-err);
+}
+
+
