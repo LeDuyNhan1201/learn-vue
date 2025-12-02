@@ -2,13 +2,13 @@ import type {
     AdvanceFilterTaskRequest,
     SearchQueryParams,
     SearchResponse,
-    StatusesResponse,
+    StatusesResponse, TaskIdPathParam, TaskItem,
     TasksResponse
 } from "@/types/tasks.schema.ts";
 import {type AxiosRequestConfig, isAxiosError} from "axios";
 import {computed, onBeforeUnmount, reactive, ref, watch} from "vue";
 import {useQuery, useQueryClient} from "@tanstack/vue-query";
-import {getStatuses, getTasks, searchTasks} from "@/lib/api/task.api.ts";
+import {getStatuses, getTaskDetails, getTasks, searchTasks} from "@/lib/api/task.api.ts";
 import type {ResourceNotFoundErrorResponse} from "@/types/error.schema.ts";
 
 export function useGetStatusesQuery() {
@@ -33,6 +33,21 @@ export function useGetTasksQuery() {
     >({
         queryKey: ["tasks"],
         queryFn: () => getTasks(),
+        throwOnError: (error) => isAxiosError(error),
+        retry: 1,
+        staleTime: 1000 * 60, // 1 minute
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false,
+    });
+}
+
+export function useGetTaskDetailsQuery(param: TaskIdPathParam) {
+    return useQuery<
+        TaskItem,
+        ResourceNotFoundErrorResponse
+    >({
+        queryKey: ["task-details"],
+        queryFn: () => getTaskDetails(param),
         throwOnError: (error) => isAxiosError(error),
         retry: 1,
         staleTime: 1000 * 60, // 1 minute

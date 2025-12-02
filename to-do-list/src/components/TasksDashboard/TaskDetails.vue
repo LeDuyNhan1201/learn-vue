@@ -1,11 +1,15 @@
 <script setup lang="ts">
 
 import {computed, onMounted} from "vue";
-import {type TaskStatus, taskStatus} from "@/types/tasks.schema.ts";
+import {taskIdPathParam, type TaskStatus, updateTaskRequest} from "@/types/tasks.schema.ts";
 import {useCreateTaskForm} from "@/hooks/form/use-create-task.form.ts";
 import {v4 as uuidv4} from "uuid";
 import {today} from "@/helper/utils.ts";
-import {useGetStatusesQuery} from "@/hooks/queries/task.query.ts";
+import {useGetStatusesQuery, useGetTaskDetailsQuery} from "@/hooks/queries/task.query.ts";
+import {useRoute} from "vue-router";
+
+const route = useRoute();
+const taskId = route.params.id as string;
 
 const {data: taskStatuses} = useGetStatusesQuery();
 
@@ -15,16 +19,13 @@ const filteredStatuses = computed(() =>
     )
 );
 
-async function fetchTask(id: string): Promise<any> {
-  return {
-    title: "asasfafsafsasf",
-    // assignees: ["asfasfasf"] as string[],
-    status: taskStatus.parse({id: uuidv4(), title: "To do"}),
-    startDay: "2025-01-12",
-    targetDay: "2025-01-12",
-    endDay: "2025-01-12"
-  }
-}
+const {
+  data: selectedTask,
+  isLoading: statusesLoading,
+  isFetching: statusesFetching,
+} = useGetTaskDetailsQuery(taskIdPathParam.parse({id: taskId}));
+
+const currentTask = computed(() => updateTaskRequest.parse({...selectedTask.value}));
 
 const {
   validate,
@@ -44,8 +45,7 @@ const {
 });
 
 onMounted(async () => {
-  const data = await fetchTask("123");
-  setState(data);
+  setState(currentTask.value);
   await validate();
 });
 

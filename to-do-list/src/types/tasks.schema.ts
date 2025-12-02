@@ -66,6 +66,11 @@ export const searchQueryParams = z.object({
 });
 export type SearchQueryParams = z.infer<typeof searchQueryParams>;
 
+export const taskIdPathParam = z.object({
+    id: z.uuid()
+});
+export type TaskIdPathParam = z.infer<typeof taskIdPathParam>;
+
 export const sortTasksOption = z.object({
     field: taskFields.optional(),
     direction: sortDirection.optional()
@@ -93,3 +98,12 @@ export const searchResponse = z.object({
     total: z.number().int().optional(),
 });
 export type SearchResponse = z.infer<typeof searchResponse>;
+
+export const createTaskResponse = z.uuid().optional()
+export type CreateTaskResponse = z.infer<typeof createTaskResponse>
+
+export const updateTaskResponse = z.uuid().optional()
+export type UpdateTaskResponse = z.infer<typeof updateTaskResponse>
+
+export const deleteTaskResponse = z.uuid().optional()
+export type DeleteTaskResponse = z.infer<typeof deleteTaskResponse>

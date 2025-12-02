@@ -6,7 +6,7 @@ export async function signIn(
     body: SignInRequest,
     config?: AxiosRequestConfig<SignInRequest>
 ): Promise<TokensResponse> {
-    const response = await restClient.post<
+    return await restClient.post<
         TokensResponse,
         SignInRequest
     >("/auth/sign-in",
@@ -18,13 +18,12 @@ export async function signIn(
             ...config,
         }
     );
-    return response.data;
 }
 
 export async function refresh(
     body: RefreshRequest,
 ): Promise<TokensResponse> {
-    const response = await restClient.post<TokensResponse>(
+    return await restClient.post<TokensResponse>(
         "/auth/refresh",
         body,
         {
@@ -33,5 +32,4 @@ export async function refresh(
             },
         },
     );
-    return response.data;
 }
