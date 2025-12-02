@@ -1,27 +1,36 @@
 <script setup lang="ts">
 
-import {computed, onMounted} from "vue";
+import {computed} from "vue";
 import {useCreateTaskForm} from "@/hooks/form/use-create-task.form.ts";
 import {useGetStatusesQuery} from "@/hooks/queries/task.query.ts";
+import {type TaskStatus} from "@/types/tasks.schema.ts";
+import {v4 as uuidv4} from "uuid";
+import {today} from "@/helper/utils.ts";
 
-const { data: taskStatuses } = useGetStatusesQuery();
+const {data: taskStatuses} = useGetStatusesQuery();
 
 const filteredStatuses = computed(() =>
     (taskStatuses.value ?? []).filter(
-        s => s.title !== state.status.title
+        s => s.title !== state.status!.title
     )
 );
-
-onMounted(async () => {
-  await validate();
-});
 
 const {
   validate,
   v$,
   state,
   submitForm,
-} = useCreateTaskForm();
+} = useCreateTaskForm({
+  title: "",
+  // assignees: ["test"] as string[],
+  status: taskStatuses.value?.[0] ?? {
+    id: uuidv4(),
+    title: "To Do",
+  } as TaskStatus,
+  startDay: today(),
+  targetDay: today(),
+  endDay: today()
+});
 
 validate();
 
@@ -51,21 +60,21 @@ async function onSubmit() {
         </div>
       </div>
 
-<!--      <div :class="{ error: v$.assignees.$errors.length }">-->
-<!--        <label for="assignees">Assignees (comma separated)</label>-->
-<!--        <input id="assignees" name="assignees" v-model="assigneesString" type="text"/>-->
-<!--        <div class="input-errors" v-for="error of v$.assignees.$errors" :key="error.$uid">-->
-<!--          <span class="error-msg">{{ error.$message }}</span>-->
-<!--        </div>-->
-<!--      </div>-->
+      <!--      <div :class="{ error: v$.assignees.$errors.length }">-->
+      <!--        <label for="assignees">Assignees (comma separated)</label>-->
+      <!--        <input id="assignees" name="assignees" v-model="assigneesString" type="text"/>-->
+      <!--        <div class="input-errors" v-for="error of v$.assignees.$errors" :key="error.$uid">-->
+      <!--          <span class="error-msg">{{ error.$message }}</span>-->
+      <!--        </div>-->
+      <!--      </div>-->
 
       <div :class="{ error: v$.status.$errors.length }">
         <label for="status">Status</label>
         <select id="status" name="status" v-model="state.status">
-          <!-- Default option (đang chọn) -->
-          <option :value="state.status">{{ state.status.title }}</option>
+          <!-- Default option -->
+          <option :value="state.status">{{ state.status!.title }}</option>
 
-          <!-- Các option còn lại -->
+          <!-- Dynamic options -->
           <option
               v-for="status in filteredStatuses"
               :key="status.id"

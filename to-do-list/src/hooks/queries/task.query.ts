@@ -48,7 +48,10 @@ interface SearchQueryInit {
 
 export function useSearchTasksQuery(
     initial: SearchQueryInit = {},
-    opts?: { debounceMs?: number; axiosConfig?: AxiosRequestConfig }
+    opts?: {
+        debounceMs?: number;
+        axiosConfig?: AxiosRequestConfig;
+    }
 ) {
     const debounceMs = opts?.debounceMs ?? 400;
 
@@ -61,9 +64,10 @@ export function useSearchTasksQuery(
     });
 
     const filters = reactive<AdvanceFilterTaskRequest>({
+        sorts: initial.filters?.sorts ?? [],
         fromDate: initial.filters?.fromDate ?? undefined,
         toDate: initial.filters?.toDate ?? undefined,
-        keyword: initial.filters?.keyword ?? "",
+        keyword: initial.filters?.keyword ?? ""
     });
 
     // -----------------------------
@@ -72,9 +76,18 @@ export function useSearchTasksQuery(
     const debouncedKeyword = useDebouncedRef(() => filters.keyword, debounceMs);
     const debouncedFromDate = useDebouncedRef(() => filters.fromDate, debounceMs);
     const debouncedToDate = useDebouncedRef(() => filters.toDate, debounceMs);
+    const debouncedSorts = useDebouncedRef(() => filters.sorts, debounceMs);
 
     // Reset page when keyword changes
     watch(debouncedKeyword, () => {
+        queries.page = 1;
+    });
+
+    watch(debouncedFromDate, () => {
+        queries.page = 1;
+    });
+
+    watch(debouncedToDate, () => {
         queries.page = 1;
     });
 
@@ -90,6 +103,7 @@ export function useSearchTasksQuery(
             keyword: debouncedKeyword.value,
             fromDate: debouncedFromDate.value,
             toDate: debouncedToDate.value,
+            sorts: debouncedSorts.value,
         },
     ]);
 
@@ -105,6 +119,7 @@ export function useSearchTasksQuery(
                     size: queries.size,
                 },
                 {
+                    sorts: debouncedSorts.value,
                     keyword: debouncedKeyword.value,
                     fromDate: debouncedFromDate.value,
                     toDate: debouncedToDate.value,
@@ -135,14 +150,16 @@ export function useSearchTasksQuery(
         debouncedKeyword,
         debouncedFromDate,
         debouncedToDate,
+        debouncedSorts,
 
         ...query,
 
         setPage,
         setSize,
-        setFromDate: (v: Date | undefined) => (filters.fromDate = v),
-        setToDate: (v: Date | undefined) => (filters.toDate = v),
+        setFromDate: (v: string) => (filters.fromDate = v),
+        setToDate: (v: string) => (filters.toDate = v),
         setKeyword: (v: string) => (filters.keyword = v),
+        setSorts: (v: AdvanceFilterTaskRequest["sorts"]) => (filters.sorts = v),
 
         client,
     };

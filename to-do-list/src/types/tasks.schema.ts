@@ -9,17 +9,17 @@ export const dragTaskInfo = z.object({
 export type DragTaskInfo = z.infer<typeof dragTaskInfo>
 
 export const taskStatus = z.object({
-    id: z.uuid().optional(),
-    title: z.string().optional(),
+    id: z.uuid(),
+    title: z.string(),
 })
 export type TaskStatus = z.infer<typeof taskStatus>
 
 export const taskFields = z.enum(
-    ["title", "status_id", "start_day", "target_day", "end_day", "priority"]
+    ["title", "status_id", "start_day", "target_day", "end_day", "priority", ""]
 )
 export type TaskFields = z.infer<typeof taskFields>
 
-export const sortDirection = z.enum(["asc", "desc"])
+export const sortDirection = z.enum(["Asc", "Desc", ""])
 export type SortDirection = z.infer<typeof sortDirection>
 
 export const taskItem = z.object({
@@ -27,9 +27,9 @@ export const taskItem = z.object({
     title: z.string().optional(),
     assignees: z.array(z.string(), {error: "Must be array"}).optional(),
     status: taskStatus.optional(),
-    startDay: z.date().optional(),
-    targetDay: z.date().optional(),
-    endDay: z.date().optional(),
+    startDay: z.string().optional(),
+    targetDay: z.string().optional(),
+    endDay: z.string().optional(),
     priority: z.number({error: "Must be number"}).int({error: "Must be number"}).optional(),
 })
 export const taskItemSchema = toTypedSchema(taskItem)
@@ -38,9 +38,9 @@ export type TaskItem = z.infer<typeof taskItem>
 export const createTaskRequest = z.object({
     title: z.string(),
     status: taskStatus.required(),
-    startDay: z.date(),
-    targetDay: z.date(),
-    endDay: z.date(),
+    startDay: z.string(),
+    targetDay: z.string(),
+    endDay: z.string(),
 })
 export type CreateTaskRequest = z.infer<typeof createTaskRequest>
 
@@ -73,8 +73,8 @@ export const sortTasksOption = z.object({
 export type SortTasksOption = z.infer<typeof sortTasksOption>;
 
 export const advanceFilterTaskRequest = z.object({
-    fromDate: z.date().optional(),
-    toDate: z.date().optional(),
+    fromDate: z.string().optional(),
+    toDate: z.string().optional(),
     keyword: z.string().optional(),
     sorts: z.array(sortTasksOption).default([])
 });

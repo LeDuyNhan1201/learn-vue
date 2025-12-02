@@ -4,6 +4,7 @@ import {colDragReorder} from "@/hooks/ui/col-drag-reorder.ts";
 import {useGetStatusesQuery, useSearchTasksQuery} from "@/hooks/queries/task.query.ts";
 import CellView from "@/components/TasksDashboard/CellView.vue";
 import FilterPopup from "@/components/TasksDashboard/FilterPopup.vue";
+import type {AdvanceFilterTaskRequest} from "@/types/tasks.schema.ts";
 
 const {
   data: taskStatuses,
@@ -18,6 +19,10 @@ const {
   isLoading,
   isFetching,
   setPage,
+  setKeyword,
+  setFromDate,
+  setToDate,
+  setSorts,
 } = useSearchTasksQuery({
       queries: {
         page: 1,
@@ -32,6 +37,12 @@ const statuses = computed(() => taskStatuses.value ?? []);
 const tasks = computed(() => data.value?.items ?? []);
 const total = computed(() => data.value?.total ?? 0);
 const totalPages = computed(() => Math.ceil(total.value / queries.size));
+const setFilters = (filters: AdvanceFilterTaskRequest) => {
+  setKeyword(filters.keyword ?? "");
+  setFromDate(filters.fromDate ?? "");
+  setToDate(filters.toDate ?? "");
+  setSorts(filters.sorts ?? []);
+}
 
 interface Column {
   key: string
@@ -64,7 +75,10 @@ const columnHighlightClasses = (index: number) => ({
   "highlight-right": highlightIndex.value === index && highlightSide.value === "right",
 });
 
-const isEditing = (row: number, col: string) => editingCell.value?.row === row && editingCell.value?.col === col;
+const isEditing = (row: number, col: string) => {
+  // return editingCell.value?.row === row && editingCell.value?.col === col;
+  return false;
+}
 const startEditing = (row: number, col: string) => editingCell.value = {row, col};
 const stopEditing = () => (editingCell.value = null);
 
@@ -79,12 +93,16 @@ const show = ref<boolean>(false);
         placeholder="Search..."
     />
 
-    <button @click="() => { show = true; console.log('Open filter popup'); }">
+    <button @click="() => { show = true; }">
       Advanced Filters
     </button>
   </div>
 
-  <FilterPopup v-model:visible="show"/>
+  <FilterPopup
+      :filters="filters"
+      @update:filters="setFilters"
+      v-model:visible="show"
+  />
 
   <div v-if="isLoading || statusesLoading">Loading...</div>
 

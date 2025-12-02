@@ -36,6 +36,10 @@ export function formatVNDate(
         .format(withTime ? timeFormat : dateFormat);
 }
 
+export function today() {
+    return new Date().toISOString().split("T")[0]
+}
+
 export async function getAccessToken(): Promise<string | null> {
     const userStore = useUserStore();
 

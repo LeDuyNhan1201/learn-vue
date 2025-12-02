@@ -1,21 +1,11 @@
 import {reactive} from "vue";
 import {helpers, minLength, required} from "@vuelidate/validators";
-import {taskStatus} from "@/types/tasks.schema.ts";
-import {v4 as uuidv4} from "uuid";
+import {type CreateTaskRequest} from "@/types/tasks.schema.ts";
 import {useForm} from "@/hooks/form/use-form.ts";
 
-function today() {
-    return new Date().toISOString().split("T")[0]
-}
-
-export function useCreateTaskForm() {
+export function useCreateTaskForm(initial?: Partial<CreateTaskRequest>) {
     const initialState = reactive({
-        title: "",
-        // assignees: ["test"] as string[],
-        status: taskStatus.parse({id: uuidv4(), title: "To do"}),
-        startDay: today(),
-        targetDay: today(),
-        endDay: today()
+        ...initial
     })
 
     const rules = {

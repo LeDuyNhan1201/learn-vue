@@ -1,43 +1,57 @@
 <script setup lang="ts">
 
 import {useAdvanceFilterForm} from "@/hooks/form/use-advance-filters-form.ts";
-import {sortDirection, taskFields} from "@/types/tasks.schema.ts";
+import {type AdvanceFilterTaskRequest, sortDirection, taskFields} from "@/types/tasks.schema.ts";
+import {watch} from "vue";
 
 const visible = defineModel<boolean | undefined>('visible')
 
 const {
-  form,
+  state,
   v$,
-  submit,
+  submitForm,
   addSort,
   removeSort,
+  setState,
   reset
 } = useAdvanceFilterForm();
 
-function applyFilters() {
-  submit((data) => {
-    console.log("Applied filters:", data);
-    visible.value = false; // close dialog
-  });
+async function applyFilters() {
+  await submitForm()
+  emit("update:filters", { ...state })
+  visible.value = false;
 }
 
+function resetFilters() {
+  reset()
+  state.sorts = []
+  emit("update:filters", { ...state })
+}
+
+const props = defineProps<{ filters: AdvanceFilterTaskRequest }>()
+const emit = defineEmits<{ (e: "update:filters", v: AdvanceFilterTaskRequest): void }>()
+watch(
+    () => props.filters.keyword,
+    (val) => state.keyword = val ?? "",
+    {immediate: true, deep: true}
+)
 </script>
 
 <template>
   <Dialog
       v-model:visible="visible"
       modal
-      class="filter-popup"
+      class="container"
   >
-    <div class="filter-form">
+    <form @submit.prevent="applyFilters">
 
       <!-- Header -->
-      <h2 class="filter-title">Advance Filters</h2>
+      <h2 class="form-title">Advance Filters</h2>
 
       <!-- Keyword -->
       <div class="form-group" :class="{ error: v$.keyword.$errors.length }">
-        <label>Keyword</label>
-        <InputText v-model="form.keyword" placeholder="Search tasks..." />
+        <label for="keyword">Keyword</label>
+        <input id="keyword" name="keyword" type="text" v-model="state.keyword" placeholder="Search tasks..."/>
         <div class="input-errors" v-for="error of v$.keyword.$errors" :key="error.$uid">
           <span class="error-msg">{{ error.$message }}</span>
         </div>
@@ -46,16 +60,16 @@ function applyFilters() {
       <!-- Date Range -->
       <div class="form-row">
         <div class="form-group" :class="{ error: v$.fromDate.$errors.length }">
-          <label>From Date</label>
-          <DatePicker v-model="form.fromDate" dateFormat="yy-mm-dd" />
+          <label for="fromDate">From date</label>
+          <input id="fromDate" name="fromDate" v-model="state.fromDate" type="date"/>
           <div class="input-errors" v-for="error of v$.fromDate.$errors" :key="error.$uid">
             <span class="error-msg">{{ error.$message }}</span>
           </div>
         </div>
 
         <div class="form-group" :class="{ error: v$.toDate.$errors.length }">
-          <label>To Date</label>
-          <DatePicker v-model="form.toDate" dateFormat="yy-mm-dd" />
+          <label for="toDate">To date</label>
+          <input id="toDate" name="toDate" v-model="state.toDate" type="date"/>
           <div class="input-errors" v-for="error of v$.toDate.$errors" :key="error.$uid">
             <span class="error-msg">{{ error.$message }}</span>
           </div>
@@ -65,18 +79,44 @@ function applyFilters() {
       <!-- Sort Section -->
       <div class="sort-section">
         <h3>Sorting</h3>
-        <div v-for="(s, i) in form.sorts" :key="i" class="sort-item">
+        <div v-for="(s, i) in state.sorts" :key="i" class="sort-item">
 
-          <div class="form-group" :class="{ error: v$.sorts.$each[i].field.$errors.length }">
-            <Select v-model="s.field" :options="taskFields.options" placeholder="Field"/>
-            <div class="input-errors" v-for="error of v$.sorts.$each[i].field.$errors" :key="error.$uid">
+          <div class="form-group" :class="{ error: v$.sorts.$errors.length }">
+            <label for="field">Field</label>
+            <select id="field" name="field" v-model="s.field">
+              <!-- Default option -->
+              <option value="">Choose...</option>
+
+              <!-- Dynamic options -->
+              <option
+                  v-for="field in taskFields.options"
+                  :key="field"
+                  :value="field"
+              >
+                {{ field }}
+              </option>
+            </select>
+            <div class="input-errors" v-for="error of v$.sorts.$errors" :key="error.$uid">
               <span class="error-msg">{{ error.$message }}</span>
             </div>
           </div>
 
-          <div class="form-group" :class="{ error: v$.sorts.$each[i].direction.$errors.length }">
-            <Select v-model="s.direction" :options="sortDirection.options" placeholder="Direction"/>
-            <div class="input-errors" v-for="error of v$.sorts.$each[i].direction.$errors" :key="error.$uid">
+          <div class="form-group" :class="{ error: v$.sorts.$errors.length }">
+            <label for="direction">Direction</label>
+            <select id="direction" name="direction" v-model="s.direction">
+              <!-- Default option -->
+              <option value="">Choose...</option>
+
+              <!-- Dynamic options -->
+              <option
+                  v-for="direction in sortDirection.options"
+                  :key="direction"
+                  :value="direction"
+              >
+                {{ direction }}
+              </option>
+            </select>
+            <div class="input-errors" v-for="error of v$.sorts.$errors" :key="error.$uid">
               <span class="error-msg">{{ error.$message }}</span>
             </div>
           </div>
@@ -89,32 +129,31 @@ function applyFilters() {
 
       <!-- Footer -->
       <div class="filter-footer">
-        <button type="button" @click="visible = false">Close</button>
+<!--        <button type="button" @click="visible = false">Close</button>-->
+        <button type="button" @click="resetFilters">Clear</button>
         <button type="button" @click="applyFilters">Apply</button>
       </div>
 
-    </div>
+    </form>
   </Dialog>
 </template>
 
 <style scoped lang="scss">
-.filter-popup {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: var(--s-4);
-
-  .filter-form {
+.container {
+  form {
     width: 360px;
-    background: var(--c-surface);
-    border: 1px solid var(--c-border);
-    border-radius: var(--r-md);
-    padding: var(--s-6);
     display: flex;
     flex-direction: column;
     gap: var(--s-4);
+    background-color: var(--c-surface);
 
-    .filter-title {
+    button {
+      &:hover {
+        font-weight: var(--f-weight);
+      }
+    }
+
+    .form-title {
       font-size: var(--f-size-lg);
       font-weight: var(--f-bold);
       margin-bottom: var(--s-4);
@@ -122,6 +161,7 @@ function applyFilters() {
 
     .form-group {
       display: flex;
+      flex: 1;
       flex-direction: column;
       gap: var(--s-1);
 
@@ -130,14 +170,10 @@ function applyFilters() {
       }
 
       input,
-      select,
-      :deep(.p-inputtext),
-      :deep(.p-dropdown),
-      :deep(.p-calendar .p-inputtext) {
+      select {
         width: 100%;
         padding: var(--s-2) var(--s-4);
         border: 1px solid var(--c-border);
-        border-radius: var(--r-sm);
         background: var(--c-bg);
         outline: none;
         transition: all 0.2s ease;
@@ -150,26 +186,20 @@ function applyFilters() {
 
       &.error {
         input,
-        select,
-        :deep(.p-inputtext),
-        :deep(.p-dropdown),
-        :deep(.p-calendar .p-inputtext) {
-          border-color: var(--c-err) !important;
-          background: var(--c-err-bg) !important;
+        select {
+          border-color: var(--c-err);
+          background: var(--c-err-bg);
         }
 
         .input-errors {
           margin-top: var(--s-1);
-          .error-msg {
-            color: var(--c-err);
-            font-size: 0.85rem;
-          }
         }
       }
     }
 
     .form-row {
       display: flex;
+      flex-direction: row;
       gap: var(--s-3);
     }
 
@@ -186,7 +216,7 @@ function applyFilters() {
       .sort-item {
         display: flex;
         gap: var(--s-3);
-        align-items: flex-start;
+        align-items: end;
 
         .form-group {
           flex: 1;
@@ -194,7 +224,6 @@ function applyFilters() {
 
         .sort-remove {
           padding: var(--s-2) var(--s-3);
-          border-radius: var(--r-sm);
           border: 1px solid var(--c-border);
           background: var(--c-bg);
           cursor: pointer;
@@ -209,7 +238,6 @@ function applyFilters() {
 
       .sort-add {
         padding: var(--s-2) var(--s-4);
-        border-radius: var(--r-sm);
         background: var(--c-primary);
         color: white;
         cursor: pointer;
@@ -225,18 +253,6 @@ function applyFilters() {
       display: flex;
       justify-content: flex-end;
       gap: var(--s-3);
-
-      button {
-        padding: var(--s-2) var(--s-4);
-        border-radius: var(--r-sm);
-        cursor: pointer;
-        transition: all 0.2s ease;
-
-        &:hover {
-          background-color: var(--c-primary-h);
-          color: white;
-        }
-      }
     }
   }
 }

@@ -1,12 +1,21 @@
 <script setup lang="ts">
 
 import {computed, onMounted} from "vue";
-import {statusOptions, taskStatus} from "@/types/tasks.schema.ts";
+import {type TaskStatus, taskStatus} from "@/types/tasks.schema.ts";
 import {useCreateTaskForm} from "@/hooks/form/use-create-task.form.ts";
 import {v4 as uuidv4} from "uuid";
+import {today} from "@/helper/utils.ts";
+import {useGetStatusesQuery} from "@/hooks/queries/task.query.ts";
+
+const {data: taskStatuses} = useGetStatusesQuery();
+
+const filteredStatuses = computed(() =>
+    (taskStatuses.value ?? []).filter(
+        s => s.title !== state.status!.title
+    )
+);
 
 async function fetchTask(id: string): Promise<any> {
-  console.log(id);
   return {
     title: "asasfafsafsasf",
     // assignees: ["asfasfasf"] as string[],
@@ -17,25 +26,28 @@ async function fetchTask(id: string): Promise<any> {
   }
 }
 
-const statuses = statusOptions
-
 const {
   validate,
   v$,
   state,
   setState,
   submitForm,
-} = useCreateTaskForm();
+} = useCreateTaskForm({
+  title: "",
+  status: taskStatuses.value?.[0] ?? {
+    id: uuidv4(),
+    title: "To Do",
+  } as TaskStatus,
+  startDay: today(),
+  targetDay: today(),
+  endDay: today()
+});
 
 onMounted(async () => {
   const data = await fetchTask("123");
   setState(data);
   await validate();
 });
-
-const filteredStatuses = computed(() =>
-    statuses.filter(status => status.title !== state.status.title)
-);
 
 async function onSubmit() {
   console.log("Submit called!");
@@ -60,7 +72,7 @@ async function onSubmit() {
         <label for="status">Status</label>
         <select id="status" name="status" v-model="state.status">
           <!-- Default option (đang chọn) -->
-          <option :value="state.status">{{ state.status.title }}</option>
+          <option :value="state.status">{{ state.status!.title }}</option>
 
           <!-- Các option còn lại -->
           <option

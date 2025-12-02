@@ -18,12 +18,17 @@ export function useForm<TState extends object>(
         const ok = await validate();
         if (!ok) return false;
 
-        if (onSubmit) await onSubmit(state);
+        if (onSubmit) await onSubmit({...state});
         return true;
     }
 
     function setState(data: Partial<TState>) {
         Object.assign(state, data);
+    }
+
+    function reset() {
+        Object.assign(state, initialState);
+        v$.value.$reset();
     }
 
     return {
@@ -32,5 +37,6 @@ export function useForm<TState extends object>(
         validate,
         submitForm,
         setState,
+        reset,
     };
 }

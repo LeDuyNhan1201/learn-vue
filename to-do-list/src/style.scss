@@ -160,4 +160,28 @@ button {
     color: var(--c-err);
 }
 
+.p-dialog {
+  background: var(--c-surface) !important;
+  border: 1px solid var(--c-border) !important;
+  padding: var(--s-6) !important;
+}
+.p-dialog .p-dialog-header {
+  justify-content: end !important;
+}
+.p-dialog .p-dialog-header,
+.p-dialog .p-dialog-content,
+.p-dialog .p-dialog-footer {
+  border-color: var(--c-border) !important;
+}
+.p-inputtext, .p-dropdown, .p-calendar .p-inputtext {
+  background: var(--c-bg) !important;
+  border: 1px solid var(--c-border) !important;
+  padding: var(--s-2) var(--s-4) !important; /* or --space-* if you use old names */
+}
+.error .p-inputtext, .error .p-dropdown {
+  border-color: var(--c-err) !important;
+  background: var(--c-err-bg) !important;
+}
+
+
 

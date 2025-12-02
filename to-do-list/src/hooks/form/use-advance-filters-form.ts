@@ -1,11 +1,10 @@
 import type {AdvanceFilterTaskRequest, SortTasksOption} from "@/types/tasks.schema.ts";
 import {reactive} from "vue";
 import {helpers, required} from "@vuelidate/validators";
-import useVuelidate from "@vuelidate/core";
+import {useForm} from "@/hooks/form/use-form.ts";
 
 export function useAdvanceFilterForm(initial?: Partial<AdvanceFilterTaskRequest>) {
-    // Reactive form state
-    const form = reactive({
+    const initialState = reactive({
         fromDate: undefined,
         toDate: undefined,
         keyword: "",
@@ -13,76 +12,65 @@ export function useAdvanceFilterForm(initial?: Partial<AdvanceFilterTaskRequest>
         ...initial,
     });
 
-    // Validation rules
+    // const rules = {
+    //     keyword: {
+    //         required: helpers.withMessage(
+    //             () => "Keyword is required",
+    //             required
+    //         )
+    //     },
+    //     fromDate: {
+    //         required: helpers.withMessage(
+    //             () => "From Date is required",
+    //             required
+    //         )
+    //     },
+    //     toDate: {
+    //         required: helpers.withMessage(
+    //             () => "To Date is required",
+    //             required
+    //         )
+    //     },
+    //     sorts: {
+    //         $each: {
+    //             field: helpers.withMessage(
+    //                 () => "Sort field is required",
+    //                 required
+    //             ),
+    //             direction: helpers.withMessage(
+    //                 () => "Sort direction is required",
+    //                 required
+    //             )
+    //         }
+    //     }
+    // };
+
     const rules = {
         keyword: {
-            required: helpers.withMessage(
-                () => "Keyword is required",
-                required
-            )
         },
         fromDate: {
-            required: helpers.withMessage(
-                () => "From Date is required",
-                required
-            )
         },
         toDate: {
-            required: helpers.withMessage(
-                () => "To Date is required",
-                required
-            )
         },
         sorts: {
-            $each: {
-                field: helpers.withMessage(
-                    () => "Sort field is required",
-                    required
-                ),
-                direction: helpers.withMessage(
-                    () => "Sort direction is required",
-                    required
-                )
-            }
         }
     };
 
-    const v$ = useVuelidate(rules, form);
-
-    // Methods
-    async function validate() {
-        return await v$.value.$validate();
-    }
-
-    function reset() {
-        form.fromDate = undefined;
-        form.toDate = undefined;
-        form.keyword = "";
-        form.sorts = [];
-        v$.value.$reset();
-    }
-
-    async function submit(onSubmit: (data: AdvanceFilterTaskRequest) => void) {
-        const ok = await validate();
-        if (!ok) return false;
-        onSubmit({...form});
-        return true;
-    }
+    const form = useForm(initialState, rules, async (state) => {
+        console.log("Submit:", JSON.stringify(state, null, 2));
+        // await api.createTask(state)
+    });
 
     function addSort() {
-        form.sorts.push({field: undefined, direction: undefined} as SortTasksOption);
+        form.state.sorts.push({field: "", direction: ""} as SortTasksOption);
     }
 
     function removeSort(index: number) {
-        form.sorts.splice(index, 1);
+        form.state.sorts.splice(index, 1);
     }
 
     return {
-        form,
-        v$,
-        validate,
-        submit,
-        reset,
+        ...form,
         addSort,
         removeSort,
     };

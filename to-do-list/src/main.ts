@@ -13,7 +13,6 @@ import Button from "primevue/button";
 import TabMenu from 'primevue/tabmenu';
 import DataTable from 'primevue/datatable';
 import '@/style.scss';
-import '@/styles/primevue-overrides.scss';
 
 const app = createApp(App);
 const pinia = createPinia()
