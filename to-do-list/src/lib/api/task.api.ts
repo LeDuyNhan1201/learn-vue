@@ -109,12 +109,13 @@ export async function updateTaskStatus(
 
 export async function updateTask(
     body: UpdateTaskRequest,
+    param: TaskIdPathParam,
     config?: AxiosRequestConfig<UpdateTaskRequest>
 ): Promise<UpdateTaskResponse> {
     return await restClient.put<
         UpdateTaskResponse,
         UpdateTaskRequest
-    >("/tasks",
+    >(`/tasks/${param.id}`,
         body,
         {
             headers: {

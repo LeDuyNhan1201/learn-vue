@@ -55,6 +55,5 @@ export function useCreateTaskForm(initial?: Partial<CreateTaskRequest>) {
 
     return useForm(initialState, rules, async (state) => {
         console.log("Submit:", JSON.stringify(state, null, 2));
-        // await api.createTask(state)
     });
 }

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 
-import {computed} from "vue";
+import {computed, ref} from "vue";
 import {useCreateTaskForm} from "@/hooks/form/use-create-task.form.ts";
 import {useGetStatusesQuery} from "@/hooks/queries/task.query.ts";
-import {type TaskStatus} from "@/types/tasks.schema.ts";
+import {createTaskRequest, type TaskStatus} from "@/types/tasks.schema.ts";
 import {v4 as uuidv4} from "uuid";
 import {today} from "@/helper/utils.ts";
+import {useCreateTaskMutation} from "@/hooks/mutations/task.mutation.ts";
 
 const {data: taskStatuses} = useGetStatusesQuery();
 
@@ -16,7 +17,6 @@ const filteredStatuses = computed(() =>
 );
 
 const {
-  validate,
   v$,
   state,
   submitForm,
@@ -32,8 +32,6 @@ const {
   endDay: today()
 });
 
-validate();
-
 // const assigneesString = computed({
 //   get: () => state.assignees.join(", "),
 //   set: (val: string) => {
@@ -41,9 +39,26 @@ validate();
 //   },
 // });
 
+const createFailed = ref<boolean>(false);
+
+const {
+  mutate,
+  isPending,
+} = useCreateTaskMutation()
+
 async function onSubmit() {
   console.log("Submit called!");
   await submitForm()
+  mutate(createTaskRequest.parse(state), {
+    onSuccess: () => {
+      console.log("Task created successfully");
+      createFailed.value = true;
+    },
+    onError: (error) => {
+      console.error("Error creating task:", error);
+      createFailed.value = true;
+    }
+  })
 }
 </script>
 
@@ -112,9 +127,22 @@ async function onSubmit() {
         </div>
       </div>
 
-      <button @click="onSubmit" type="button">Create Task</button>
+      <button
+          type="button"
+          :disabled="isPending"
+          @click="onSubmit"
+      >
+        Create Task
+      </button>
 
     </form>
+  </div>
+
+  <div
+      class="action-failed-msg"
+      v-if="createFailed"
+  >
+    <p>Failed to create task. Please try again.</p>
   </div>
 </template>
 
@@ -188,6 +216,15 @@ form {
     width: 100%;
     margin-top: var(--s-1);
   }
+}
+
+.action-failed-msg {
+  margin-top: var(--s-4);
+  padding: var(--s-3);
+  background-color: var(--c-err-bg);
+  border: 1px solid var(--c-err);
+  color: var(--c-err);
+  text-align: center;
 }
 
 </style>
