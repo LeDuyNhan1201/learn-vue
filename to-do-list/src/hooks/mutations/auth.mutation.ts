@@ -1,6 +1,6 @@
 import type {SignInRequest, TokensResponse} from "@/types/auth.schema.ts";
 import {signIn} from "@/lib/api/auth.api.ts";
-import type {UnauthorizedErrorResponse} from "@/types/error.schema.ts";
+import type {UnauthenticatedErrorResponse} from "@/types/error.schema.ts";
 import {useMutation, useQueryClient} from "@tanstack/vue-query";
 import {useUserStore} from "@/stores/user.store.ts";
 import {isAxiosError} from "axios";
@@ -11,7 +11,7 @@ export function useSignInMutation() {
 
     return useMutation<
         TokensResponse,
-        UnauthorizedErrorResponse,
+        UnauthenticatedErrorResponse,
         SignInRequest
     >({
         mutationKey: ["auth", "sign-in"],
@@ -32,5 +32,6 @@ export function useSignInMutation() {
                 console.error("Sign in failed", error.response?.data);
             }
         },
+        throwOnError: (err) => isAxiosError(err),
     });
 }

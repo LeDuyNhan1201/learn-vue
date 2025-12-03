@@ -17,7 +17,7 @@ export const unauthenticatedErrorResponse = z.object({
     errorCode: z.literal("auth/unauthenticated"),
     message: z.string(),
 });
-export type UnauthorizedErrorResponse = z.infer<typeof unauthenticatedErrorResponse>;
+export type UnauthenticatedErrorResponse = z.infer<typeof unauthenticatedErrorResponse>;
 
 export const forbiddenErrorResponse = z.object({
     errorCode: z.literal("auth/forbidden"),

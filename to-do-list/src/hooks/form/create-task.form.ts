@@ -1,7 +1,7 @@
 import {reactive} from "vue";
 import {helpers, minLength, required} from "@vuelidate/validators";
 import {type CreateTaskRequest} from "@/types/tasks.schema.ts";
-import {useForm} from "@/hooks/form/use-form.ts";
+import {useForm} from "@/hooks/form/base-form.ts";
 
 export function useCreateTaskForm(initial?: Partial<CreateTaskRequest>) {
     const initialState = reactive({
@@ -27,7 +27,7 @@ export function useCreateTaskForm(initial?: Partial<CreateTaskRequest>) {
         //         (v: string[]) => v.length > 0
         //     )
         // },
-        status: {
+        statusId: {
             required: helpers.withMessage(
                 () => `This field is required`,
                 required
@@ -53,7 +53,5 @@ export function useCreateTaskForm(initial?: Partial<CreateTaskRequest>) {
         },
     }
 
-    return useForm(initialState, rules, async (state) => {
-        console.log("Submit:", JSON.stringify(state, null, 2));
-    });
+    return useForm(initialState, rules);
 }

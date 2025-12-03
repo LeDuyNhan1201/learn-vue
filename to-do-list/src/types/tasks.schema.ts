@@ -3,6 +3,7 @@ import {v4 as uuidv4} from "uuid"
 import {toTypedSchema} from "@vee-validate/zod";
 
 export const dragTaskInfo = z.object({
+    id: z.uuid().optional(),
     columnKey: z.string().optional(),
     index: z.number().optional(),
 })
@@ -37,7 +38,7 @@ export type TaskItem = z.infer<typeof taskItem>
 
 export const createTaskRequest = z.object({
     title: z.string(),
-    status: taskStatus.required(),
+    statusId: z.uuid(),
     startDay: z.string(),
     targetDay: z.string(),
     endDay: z.string(),
@@ -49,7 +50,7 @@ export type UpdateTaskRequest = z.infer<typeof updateTaskRequest>
 
 export const updateTaskStatusRequest = z.object({
     id: z.uuid(),
-    status: taskStatus.required()
+    statusId: z.uuid(),
 })
 export type UpdateTaskStatusRequest = z.infer<typeof updateTaskStatusRequest>
 

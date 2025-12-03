@@ -1,163 +1,163 @@
 /* ------------------ VARIABLES ------------------ */
 :root {
-    /* Typography */
-    --f-base: system-ui, Avenir, Helvetica, Arial, sans-serif;
-    --f-size: 16px;
-    --f-weight: 500;
-    --f-bold: 700;
-    --lh: 1.5;
+  /* Typography */
+  --f-base: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --f-size: 16px;
+  --f-weight: 500;
+  --f-bold: 700;
+  --lh: 1.5;
 
-    /* Spacing */
-    --s-1: 0.25rem;
-    --s-2: 0.5rem;
-    --s-3: 0.75rem;
-    --s-4: 1rem;
-    --s-5: 1.25rem;
-    --s-6: 1.5rem;
-    --s-8: 2rem;
+  /* Spacing */
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.25rem;
+  --s-6: 1.5rem;
+  --s-8: 2rem;
 
-    /* Kaban widths */
-    --w-c: 320px;
-    --w-n: 360px;
-    --w-w: 400px;
+  /* Kaban widths */
+  --w-c: 320px;
+  --w-n: 360px;
+  --w-w: 400px;
 
-    /* Border radius */
-    --r-sm: 4px;
-    --r-md: 8px;
+  /* Border radius */
+  --r-sm: 4px;
+  --r-md: 8px;
 
-    /* Colors */
-    --c-text: #1a1a1a;
-    --c-muted: #555;
-    --c-bg: #fff;
-    --c-border: #e3e3e3;
-    --c-err: #ef4444;
-    --c-err-bg: #fff5f5;
-    --c-primary: #646cff;
-    --c-primary-h: #535bf2;
-    --c-surface: #f7f7f7;
+  /* Colors */
+  --c-text: #1a1a1a;
+  --c-muted: #555;
+  --c-bg: #fff;
+  --c-border: #e3e3e3;
+  --c-err: #ef4444;
+  --c-err-bg: #fff5f5;
+  --c-primary: #646cff;
+  --c-primary-h: #535bf2;
+  --c-surface: #f7f7f7;
 
-    /* Dark mode support */
-    color-scheme: light dark;
+  /* Dark mode support */
+  color-scheme: light dark;
 
-    --shadow-text: 0 0 0 3px rgba(99, 102, 241, 0.25);
+  --shadow-text: 0 0 0 3px rgba(99, 102, 241, 0.25);
 
-    --h-row: calc(var(--s-6) + var(--s-4) * 2);
-    --h-header: calc(var(--s-6) + var(--s-4) * 2);
+  --h-row: calc(var(--s-6) + var(--s-4) * 2);
+  --h-header: calc(var(--s-6) + var(--s-4) * 2);
 }
 
 /* ------------------ DARK MODE ------------------ */
 @media (prefers-color-scheme: dark) {
-    :root {
-        --c-text: rgba(255, 255, 255, 0.87);
-        --c-bg: #242424;
-        --c-surface: #1a1a1a;
-        --c-primary-h: #747bff;
-    }
+  :root {
+    --c-text: rgba(255, 255, 255, 0.87);
+    --c-bg: #242424;
+    --c-surface: #1a1a1a;
+    --c-primary-h: #747bff;
+  }
 }
 
 /* ------------------ RESET ------------------ */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 /* ------------------ BODY ------------------ */
 body {
-    font-family: var(--f-base), ui-monospace;
-    font-size: var(--f-size);
-    line-height: var(--lh);
-    background: var(--c-bg);
-    color: var(--c-text);
+  font-family: var(--f-base), ui-monospace;
+  font-size: var(--f-size);
+  line-height: var(--lh);
+  background: var(--c-bg);
+  color: var(--c-text);
 
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ------------------ SCROLLBAR ------------------ */
 * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--c-border) transparent;
+  scrollbar-width: thin;
+  scrollbar-color: var(--c-border) transparent;
 
-    &::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--c-border);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--c-surface);
+    border-radius: 8px;
+
+    &:hover {
+      background: var(--c-muted);
     }
-
-    &::-webkit-scrollbar-track {
-        background: var(--c-border);
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background: var(--c-surface);
-        border-radius: 8px;
-
-        &:hover {
-            background: var(--c-muted);
-        }
-    }
+  }
 }
 
 @media (prefers-color-scheme: dark) {
-    * {
-        scrollbar-color: var(--c-muted) var(--c-text);
+  * {
+    scrollbar-color: var(--c-muted) var(--c-text);
 
-        &::-webkit-scrollbar-thumb {
-            background: var(--c-muted);
-        }
-
-        &::-webkit-scrollbar-track {
-            background: var(--c-text);
-        }
+    &::-webkit-scrollbar-thumb {
+      background: var(--c-muted);
     }
+
+    &::-webkit-scrollbar-track {
+      background: var(--c-text);
+    }
+  }
 }
 
 /* ------------------ LINKS ------------------ */
 a {
-    font-weight: 500;
-    color: var(--c-primary);
-    text-decoration: none;
-    cursor: pointer;
+  font-weight: 500;
+  color: var(--c-primary);
+  text-decoration: none;
+  cursor: pointer;
 
-    &:hover {
-        color: var(--c-primary-h);
-    }
+  &:hover {
+    color: var(--c-primary-h);
+  }
 }
 
 /* ------------------ BUTTONS ------------------ */
 button {
-    border: 1px solid transparent;
-    padding: var(--s-3) var(--s-4);
-    font-size: 1rem;
-    font-weight: var(--f-weight);
-    background: var(--c-surface);
-    cursor: pointer;
-    transition: border-color 0.25s ease, background 0.25s ease;
+  border: 1px solid transparent;
+  padding: var(--s-3) var(--s-4);
+  font-size: 1rem;
+  font-weight: var(--f-weight);
+  background: var(--c-surface);
+  cursor: pointer;
+  transition: border-color 0.25s ease, background 0.25s ease;
 
-    &:hover {
-        background: var(--c-primary-h);
-        font-weight: var(--f-bold);
-        color: #fff;
-    }
+  &:hover {
+    background: var(--c-primary-h);
+    font-weight: var(--f-bold);
+    color: #fff;
+  }
 }
 
 /* ------------------ UTILITIES ------------------ */
 .card {
-    padding: var(--s-4);
-    background: var(--c-surface);
-    border-radius: var(--r-md);
-    border: 1px solid var(--c-border);
+  padding: var(--s-4);
+  background: var(--c-surface);
+  border-radius: var(--r-md);
+  border: 1px solid var(--c-border);
 }
 
 /* ------------------ APP ROOT ------------------ */
 #app {
-    width: 100%;
-    min-height: 100vh;
+  width: 100%;
+  min-height: 100vh;
 }
 
 .error-msg {
-    color: var(--c-err);
+  color: var(--c-err);
 }
 
 .p-dialog {
@@ -165,23 +165,144 @@ button {
   border: 1px solid var(--c-border) !important;
   padding: var(--s-6) !important;
 }
+
 .p-dialog .p-dialog-header {
   justify-content: end !important;
 }
+
+.p-dialog-header .p-dialog-title {
+  width: 100% !important;
+  text-align: start !important;
+}
+
+.p-confirmdialog-message {
+  margin-top: var(--s-2) !important;
+}
+
+.p-button-label {
+  padding: var(--s-1);
+  border: 1px solid var(--c-border);
+  background: var(--c-bg);
+
+  &:hover {
+    background: var(--c-primary-h);
+    color: var(--c-bg);
+  }
+}
+
 .p-dialog .p-dialog-header,
 .p-dialog .p-dialog-content,
 .p-dialog .p-dialog-footer {
   border-color: var(--c-border) !important;
 }
+
+.p-dialog-footer {
+  margin-top: var(--s-2) !important;
+  display: flex !important;
+  gap: var(--s-2) !important;
+}
+
 .p-inputtext, .p-dropdown, .p-calendar .p-inputtext {
   background: var(--c-bg) !important;
   border: 1px solid var(--c-border) !important;
   padding: var(--s-2) var(--s-4) !important; /* or --space-* if you use old names */
 }
+
 .error .p-inputtext, .error .p-dropdown {
   border-color: var(--c-err) !important;
   background: var(--c-err-bg) !important;
 }
+
+/* Toast container */
+.p-toast {
+  top: auto !important; /* hủy top mặc định */
+  bottom: 1rem !important; /* cách dưới màn hình */
+  right: 1rem !important; /* cách phải màn hình */
+  left: auto !important; /* hủy left mặc định */
+}
+
+/* Từng message */
+.p-toast-message {
+  background: var(--c-surface) !important;
+  border: 1px solid var(--c-border) !important;
+  color: var(--c-text) !important;
+  border-radius: 0.5rem !important; /* tùy chỉnh radius */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  padding: var(--s-4) var(--s-6) !important;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3) !important;
+}
+
+.p-toast-message-content {
+  padding: var(--s-2) !important;
+}
+
+/* Icon toast */
+.p-toast-message .p-toast-icon {
+  font-size: 1.25rem;
+  color: var(--c-primary) !important;
+}
+
+.p-toast-message-icon {
+  margin-right: var(--s-2) !important;
+  width: var(--s-5) !important;
+  height: var(--s-5) !important;
+}
+
+.p-toast-close-button {
+  margin: 0 !important;
+}
+
+/* Tiêu đề */
+.p-toast-summary {
+  font-weight: bold !important;
+  font-size: 1rem !important;
+  text-align: start !important;
+}
+
+/* Nội dung */
+.p-toast-detail {
+  font-size: 0.875rem !important;
+  color: var(--c-text) !important;
+}
+
+/* Button trong toast nếu có */
+.p-toast-message .p-button {
+  background: var(--c-bg) !important;
+  border: 1px solid var(--c-border) !important;
+  padding: var(--s-1) var(--s-3) !important;
+}
+
+.p-toast-message .p-button:hover {
+  background: var(--c-primary-h) !important;
+  color: var(--c-bg) !important;
+}
+
+/* Tùy chỉnh theo type toast */
+.p-toast-message-success {
+  border-left: 4px solid green !important;
+}
+
+.p-toast-message-error {
+  border-left: 4px solid red !important;
+}
+
+.p-toast-message-warn {
+  border-left: 4px solid orange !important;
+}
+
+.p-toast-message-info {
+  border-left: 4px solid blue !important;
+}
+
+/* Scoped trong Vue */
+:deep(.p-toast-message) {
+  background: var(--c-surface) !important;
+  border: 1px solid var(--c-border) !important;
+}
+
+
 
 
 

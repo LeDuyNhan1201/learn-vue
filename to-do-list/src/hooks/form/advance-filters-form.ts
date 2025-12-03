@@ -1,7 +1,7 @@
 import type {AdvanceFilterTaskRequest, SortTasksOption} from "@/types/tasks.schema.ts";
 import {reactive} from "vue";
 import {helpers, required} from "@vuelidate/validators";
-import {useForm} from "@/hooks/form/use-form.ts";
+import {useForm} from "@/hooks/form/base-form.ts";
 
 export function useAdvanceFilterForm(initial?: Partial<AdvanceFilterTaskRequest>) {
     const initialState = reactive({
@@ -46,20 +46,13 @@ export function useAdvanceFilterForm(initial?: Partial<AdvanceFilterTaskRequest>
     // };
 
     const rules = {
-        keyword: {
-        },
-        fromDate: {
-        },
-        toDate: {
-        },
-        sorts: {
-        }
+        keyword: {},
+        fromDate: {},
+        toDate: {},
+        sorts: {}
     };
 
-    const form = useForm(initialState, rules, async (state) => {
-        console.log("Submit:", JSON.stringify(state, null, 2));
-        // await api.createTask(state)
-    });
+    const form = useForm(initialState, rules);
 
     function addSort() {
         form.state.sorts.push({field: "", direction: ""} as SortTasksOption);

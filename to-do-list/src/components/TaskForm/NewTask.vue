@@ -1,32 +1,22 @@
 <script setup lang="ts">
-
-import {computed, ref} from "vue";
-import {useCreateTaskForm} from "@/hooks/form/use-create-task.form.ts";
+import {useCreateTaskForm} from "@/hooks/form/create-task.form.ts";
 import {useGetStatusesQuery} from "@/hooks/queries/task.query.ts";
-import {createTaskRequest, type TaskStatus} from "@/types/tasks.schema.ts";
-import {v4 as uuidv4} from "uuid";
-import {today} from "@/helper/utils.ts";
+import {createTaskRequest} from "@/types/tasks.schema.ts";
+import {fieldLabel, today} from "@/helper/utils.ts";
 import {useCreateTaskMutation} from "@/hooks/mutations/task.mutation.ts";
+import {useToast} from "primevue/usetoast";
+import {useRouter} from "vue-router";
 
 const {data: taskStatuses} = useGetStatusesQuery();
-
-const filteredStatuses = computed(() =>
-    (taskStatuses.value ?? []).filter(
-        s => s.title !== state.status!.title
-    )
-);
 
 const {
   v$,
   state,
-  submitForm,
+  validate,
 } = useCreateTaskForm({
   title: "",
   // assignees: ["test"] as string[],
-  status: taskStatuses.value?.[0] ?? {
-    id: uuidv4(),
-    title: "To Do",
-  } as TaskStatus,
+  statusId: "",
   startDay: today(),
   targetDay: today(),
   endDay: today()
@@ -39,24 +29,39 @@ const {
 //   },
 // });
 
-const createFailed = ref<boolean>(false);
-
 const {
   mutate,
   isPending,
 } = useCreateTaskMutation()
 
+const toast = useToast();
+
+const router = useRouter();
+
 async function onSubmit() {
-  console.log("Submit called!");
-  await submitForm()
+  const isValid = await validate();
+  if (!isValid) {
+    console.log("Validation failed");
+    return;
+  }
   mutate(createTaskRequest.parse(state), {
     onSuccess: () => {
-      console.log("Task created successfully");
-      createFailed.value = true;
+      toast.add({
+        severity: "success",
+        summary: "Done",
+        detail: "Task has been created successfully",
+        life: 3000,
+      });
+
+      router.push("/tasks");
     },
     onError: (error) => {
-      console.error("Error creating task:", error);
-      createFailed.value = true;
+      toast.add({
+        severity: "error",
+        summary: "Task Creation Failed",
+        detail: error.message || 'An error occurred while creating the task.',
+        life: 30000000000000000000000,
+      });
     }
   })
 }
@@ -67,7 +72,8 @@ async function onSubmit() {
     <form @submit.prevent="onSubmit">
       <h2 class="form-title">New Task</h2>
 
-      <div :class="{ error: v$.title.$errors.length }">
+      <!-- Title -->
+      <div :class="{ error: v$.title.$errors.length }" class="form-group">
         <label for="title">Title</label>
         <input id="title" name="title" v-model="state.title" type="text"/>
         <div class="input-errors" v-for="error of v$.title.$errors" :key="error.$uid">
@@ -83,49 +89,30 @@ async function onSubmit() {
       <!--        </div>-->
       <!--      </div>-->
 
-      <div :class="{ error: v$.status.$errors.length }">
+      <!-- Status -->
+      <div :class="{ error: v$.statusId.$errors.length }" class="form-group">
         <label for="status">Status</label>
-        <select id="status" name="status" v-model="state.status">
-          <!-- Default option -->
-          <option :value="state.status">{{ state.status!.title }}</option>
-
-          <!-- Dynamic options -->
-          <option
-              v-for="status in filteredStatuses"
-              :key="status.id"
-              :value="status"
-          >
+        <select id="status" name="status" v-model="state.statusId">
+          <option value="">Choose...</option>
+          <option v-for="status in taskStatuses" :key="status.id" :value="status.id">
             {{ status.title }}
           </option>
         </select>
-        <div class="input-errors" v-for="error of v$.status.$errors" :key="error.$uid">
+        <div class="input-errors" v-for="error in v$.statusId.$errors" :key="error.$uid">
           <span class="error-msg">{{ error.$message }}</span>
         </div>
       </div>
 
-      <div :class="{ error: v$.startDay.$errors.length }">
-        <label for="startDay">Start Day</label>
-        <input id="startDay" name="startDay" v-model="state.startDay" type="date"/>
-        <div class="input-errors" v-for="error of v$.startDay.$errors" :key="error.$uid">
-          <span class="error-msg">{{ error.$message }}</span>
+      <!-- Dates -->
+      <template v-for="field of ['startDay', 'targetDay', 'endDay']" :key="field">
+        <div :class="{ error: v$[field].$errors.length }" class="form-group">
+          <label :for="field">{{ fieldLabel(field) }}</label>
+          <input :id="field" :name="field" v-model="state[field]" type="date"/>
+          <div class="input-errors" v-for="error in v$[field].$errors" :key="error.$uid">
+            <span class="error-msg">{{ error.$message }}</span>
+          </div>
         </div>
-      </div>
-
-      <div :class="{ error: v$.targetDay.$errors.length }">
-        <label for="targetDay">Target Day</label>
-        <input id="targetDay" name="targetDay" v-model="state.targetDay" type="date"/>
-        <div class="input-errors" v-for="error of v$.targetDay.$errors" :key="error.$uid">
-          <span class="error-msg">{{ error.$message }}</span>
-        </div>
-      </div>
-
-      <div :class="{ error: v$.endDay.$errors.length }">
-        <label for="endDay">End Day</label>
-        <input id="endDay" name="endDay" v-model="state.endDay" type="date"/>
-        <div class="input-errors" v-for="error of v$.endDay.$errors" :key="error.$uid">
-          <span class="error-msg">{{ error.$message }}</span>
-        </div>
-      </div>
+      </template>
 
       <button
           type="button"
@@ -136,13 +123,6 @@ async function onSubmit() {
       </button>
 
     </form>
-  </div>
-
-  <div
-      class="action-failed-msg"
-      v-if="createFailed"
-  >
-    <p>Failed to create task. Please try again.</p>
   </div>
 </template>
 
@@ -168,8 +148,8 @@ form {
     margin-bottom: var(--s-6);
   }
 
-  /* Form group */
-  > div {
+  /* Form groups */
+  .form-group {
     display: flex;
     flex-direction: column;
     margin-bottom: var(--s-4);
@@ -193,7 +173,6 @@ form {
       }
     }
 
-    /* Error group */
     &.error {
       input,
       select {
@@ -211,20 +190,8 @@ form {
     }
   }
 
-  /* Submit button inside form */
-  button[type="button"] {
+  button {
     width: 100%;
-    margin-top: var(--s-1);
   }
 }
-
-.action-failed-msg {
-  margin-top: var(--s-4);
-  padding: var(--s-3);
-  background-color: var(--c-err-bg);
-  border: 1px solid var(--c-err);
-  color: var(--c-err);
-  text-align: center;
-}
-
 </style>

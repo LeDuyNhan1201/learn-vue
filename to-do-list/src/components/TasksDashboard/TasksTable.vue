@@ -3,7 +3,7 @@ import {computed, ref} from "vue"
 import {colDragReorder} from "@/hooks/ui/col-drag-reorder.ts";
 import {useGetStatusesQuery, useSearchTasksQuery} from "@/hooks/queries/task.query.ts";
 import CellView from "@/components/TasksDashboard/CellView.vue";
-import FilterPopup from "@/components/TasksDashboard/FilterPopup.vue";
+import FilterPopup from "@/components/TaskForm/FilterPopup.vue";
 import type {AdvanceFilterTaskRequest} from "@/types/tasks.schema.ts";
 
 const {

@@ -4,8 +4,8 @@ import TasksBoard from "@/components/TasksDashboard/TasksBoard.vue";
 
 // Lazy loading for all components to reduce bundle size for the first time startup
 const TasksList = () => import('@/components/TasksDashboard/TasksList.vue');
-const NewTask = () => import('@/components/TasksDashboard/NewTask.vue');
-const TaskDetails = () => import('@/components/TasksDashboard/TaskDetails.vue');
+const NewTask = () => import('@/components/TaskForm/NewTask.vue');
+const TaskDetails = () => import('@/components/TaskForm/TaskDetails.vue');
 
 const tasksRoutes: RouteRecordRaw[] = [
     {
@@ -14,7 +14,7 @@ const tasksRoutes: RouteRecordRaw[] = [
         children: [
             {
                 path: '',
-                name: 'TasksLists',
+                name: 'TasksList',
                 component: TasksList,
                 redirect: '/tasks/table', // <--- redirect mặc định
                 children: [

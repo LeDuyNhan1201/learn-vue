@@ -9,6 +9,8 @@ useAutoScrollDuringDrag({
 </script>
 
 <template>
+  <ConfirmDialog />
+  <Toast />
   <TasksLayout />
 </template>
 

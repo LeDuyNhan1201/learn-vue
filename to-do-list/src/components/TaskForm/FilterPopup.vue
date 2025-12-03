@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import {useAdvanceFilterForm} from "@/hooks/form/use-advance-filters-form.ts";
+import {useAdvanceFilterForm} from "@/hooks/form/advance-filters-form.ts";
 import {type AdvanceFilterTaskRequest, sortDirection, taskFields} from "@/types/tasks.schema.ts";
 import {watch} from "vue";
 
@@ -9,23 +9,20 @@ const visible = defineModel<boolean | undefined>('visible')
 const {
   state,
   v$,
-  submitForm,
   addSort,
   removeSort,
-  setState,
   reset
 } = useAdvanceFilterForm();
 
 async function applyFilters() {
-  await submitForm()
-  emit("update:filters", { ...state })
+  emit("update:filters", {...state})
   visible.value = false;
 }
 
 function resetFilters() {
   reset()
   state.sorts = []
-  emit("update:filters", { ...state })
+  emit("update:filters", {...state})
 }
 
 const props = defineProps<{ filters: AdvanceFilterTaskRequest }>()
@@ -129,7 +126,7 @@ watch(
 
       <!-- Footer -->
       <div class="filter-footer">
-<!--        <button type="button" @click="visible = false">Close</button>-->
+        <!--        <button type="button" @click="visible = false">Close</button>-->
         <button type="button" @click="resetFilters">Clear</button>
         <button type="button" @click="applyFilters">Apply</button>
       </div>

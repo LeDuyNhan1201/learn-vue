@@ -1,4 +1,4 @@
-import type {UnauthorizedErrorResponse} from "@/types/error.schema.ts";
+import type {UnauthenticatedErrorResponse} from "@/types/error.schema.ts";
 import {useMutation} from "@tanstack/vue-query";
 import {isAxiosError} from "axios";
 import type {
@@ -12,7 +12,7 @@ import {createTask, deleteTask, updateTask, updateTaskStatus} from "@/lib/api/ta
 export function useCreateTaskMutation() {
     return useMutation<
         CreateTaskResponse,
-        UnauthorizedErrorResponse,
+        UnauthenticatedErrorResponse,
         CreateTaskRequest
     >({
         mutationKey: ["task", "create"],
@@ -24,17 +24,18 @@ export function useCreateTaskMutation() {
                 console.error("Create task failed", error.response?.data);
             }
         },
+        throwOnError: (err) => isAxiosError(err),
     });
 }
 
-export function useUpdateTaskMutation() {
+export function useUpdateTaskMutation(param: TaskIdPathParam) {
     return useMutation<
         UpdateTaskResponse,
-        UnauthorizedErrorResponse,
+        UnauthenticatedErrorResponse,
         UpdateTaskRequest
     >({
         mutationKey: ["task", "update"],
-        mutationFn: (body: UpdateTaskRequest) => updateTask(body),
+        mutationFn: (body: UpdateTaskRequest) => updateTask(body, param),
         onSuccess: async (data) => {
         },
         onError(error) {
@@ -42,13 +43,14 @@ export function useUpdateTaskMutation() {
                 console.error("Update task failed", error.response?.data);
             }
         },
+        throwOnError: (err) => isAxiosError(err),
     });
 }
 
 export function useUpdateTaskStatusMutation() {
     return useMutation<
         UpdateTaskResponse,
-        UnauthorizedErrorResponse,
+        UnauthenticatedErrorResponse,
         UpdateTaskStatusRequest
     >({
         mutationKey: ["task", "update-status"],
@@ -60,13 +62,14 @@ export function useUpdateTaskStatusMutation() {
                 console.error("Update task failed", error.response?.data);
             }
         },
+        throwOnError: (err) => isAxiosError(err),
     });
 }
 
 export function useDeleteTaskMutation() {
     return useMutation<
         DeleteTaskResponse,
-        UnauthorizedErrorResponse,
+        UnauthenticatedErrorResponse,
         TaskIdPathParam
     >({
         mutationKey: ["task", "delete"],
@@ -78,5 +81,6 @@ export function useDeleteTaskMutation() {
                 console.error("Delete task failed", error.response?.data);
             }
         },
+        throwOnError: (err) => isAxiosError(err),
     });
 }

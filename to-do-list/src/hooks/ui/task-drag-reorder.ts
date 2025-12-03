@@ -1,13 +1,15 @@
 import {ref} from "vue";
-import type {DragTaskInfo} from "@/types/tasks.schema.ts";
+import {type DragTaskInfo, type TaskItem, updateTaskStatusRequest} from "@/types/tasks.schema.ts";
+import {useUpdateTaskStatusMutation} from "@/hooks/mutations/task.mutation.ts";
+import {useToast} from "primevue/usetoast";
 
-export function taskDragReorder<T>() {
+export function taskDragReorder(mutation: ReturnType<typeof useUpdateTaskStatusMutation>, toast: ReturnType<typeof useToast>) {
     const dragTask = ref<DragTaskInfo | null>(null)
     const highlightMap = ref<Record<string, { index: number, side: "top" | "bottom" | null }>>({})
     const dragOverLastStatus = ref<string | null>(null)
 
-    function onTaskDragStart(event: DragEvent, index: number, columnKey: string) {
-        dragTask.value = {index, columnKey}
+    function onTaskDragStart(event: DragEvent, id: string, index: number, columnKey: string) {
+        dragTask.value = {id, index, columnKey}
         dragOverLastStatus.value = dragTask.value.columnKey!
 
         // Disable html default drag effect
@@ -46,7 +48,7 @@ export function taskDragReorder<T>() {
         highlightMap.value[columnKey] = {index: elements.length - 1, side: "bottom"}
     }
 
-    function applyTaskReorder(tasksByStatus: Record<string, T[]>, targetStatus: string): Record<string, T[]> {
+    function applyTaskReorder(tasksByStatus: Record<string, TaskItem[]>, targetStatus: string): Record<string, TaskItem[]> {
         if (!dragTask.value) return tasksByStatus
 
         const fromStatus = dragTask.value.columnKey!
@@ -80,10 +82,36 @@ export function taskDragReorder<T>() {
 
         toArr.splice(toIndex, 0, moved)
 
+        console.log("Moved Task ID:" + dragTask.value.id)
         console.log("From Priority:" + fromIndex)
         console.log("To Priority:" + toIndex)
         console.log("From Status:" + fromStatus)
         console.log("To Status:" + targetStatus)
+
+        mutation.mutate(updateTaskStatusRequest.parse({
+            id: dragTask.value.id,
+            statusId: targetStatus,
+            priority: toIndex
+        }), {
+            onSuccess: () => {
+                console.log("Task created successfully");
+                toast.add({
+                    severity: "success", // success | info | warn | error | secondary | contrast
+                    summary: "Done",
+                    detail: "Task has been updated",
+                    life: 3000, // milliseconds
+                });
+            },
+            onError: (error) => {
+                console.error("Error creating task:", error);
+                toast.add({
+                    severity: "error",
+                    summary: "Task Update Failed",
+                    detail: error.message,
+                    life: 3000,
+                });
+            }
+        })
 
         return {
             ...tasksByStatus,

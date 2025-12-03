@@ -5,6 +5,8 @@ import {colDragReorder} from "@/hooks/ui/col-drag-reorder.ts";
 import {taskDragReorder} from "@/hooks/ui/task-drag-reorder.ts";
 import {useGetStatusesQuery, useGetTasksQuery} from "@/hooks/queries/task.query.ts";
 import {formatVNDate} from "@/helper/utils.ts";
+import {useToast} from "primevue/usetoast";
+import {useUpdateTaskStatusMutation} from "@/hooks/mutations/task.mutation.ts";
 
 const {
   data: taskStatuses,
@@ -58,13 +60,15 @@ const {
   applyReorder: applyStatusReorder
 } = colDragReorder<TaskStatus>()
 
+const toast = useToast();
+const mutation = useUpdateTaskStatusMutation();
 const {
   highlightMap: highlightTaskMap,
   onTaskDragStart: onTaskDragStart,
   onTaskDragEnd: onTaskDragEnd,
   detectTaskHighlight: detectTaskHighlight,
   applyTaskReorder: applyTaskReorder
-} = taskDragReorder<TaskItem>()
+} = taskDragReorder(mutation, toast);
 
 </script>
 
@@ -104,7 +108,7 @@ const {
                    'highlight-bottom': highlightTaskMap[taskStatus.id!]?.index === index && highlightTaskMap[taskStatus.id!]?.side === 'bottom'
                  }"
                draggable="true"
-               @dragstart="(event) => onTaskDragStart(event, index, taskStatus.id!)"
+               @dragstart="(event) => onTaskDragStart(event, task.id!, index, taskStatus.id!)"
                @dragend="onTaskDragEnd"
           >
             <strong>{{ task.title }}</strong>

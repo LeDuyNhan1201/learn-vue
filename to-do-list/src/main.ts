@@ -12,6 +12,12 @@ import Select from "primevue/select";
 import Button from "primevue/button";
 import TabMenu from 'primevue/tabmenu';
 import DataTable from 'primevue/datatable';
+import ConfirmDialog from 'primevue/confirmdialog';
+import ConfirmPopup from 'primevue/confirmpopup';
+import ConfirmationService from "primevue/confirmationservice";
+import ToastService from "primevue/toastservice";
+import Toast from "primevue/toast";
+
 import '@/style.scss';
 
 const app = createApp(App);
@@ -30,6 +36,10 @@ app.use(router);  // <-- apply router here
 app.use(VueQueryPlugin, {queryClient});
 
 app.use(PrimeVue);
+app.use(ConfirmationService);
+app.use(ToastService);
+
+// --- register global components ---
 app.component("Dialog", Dialog);
 app.component("InputText", InputText);
 app.component("DatePicker", DatePicker);
@@ -37,6 +47,9 @@ app.component("Select", Select);
 app.component("Button", Button);
 app.component("TabMenu", TabMenu);
 app.component("DataTable", DataTable);
+app.component("ConfirmDialog", ConfirmDialog);
+app.component("ConfirmPopup", ConfirmPopup);
+app.component("Toast", Toast);
 
 // --- init user store from cookie ---
 const userStore = useUserStore();

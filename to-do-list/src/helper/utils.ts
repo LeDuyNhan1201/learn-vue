@@ -36,8 +36,18 @@ export function formatVNDate(
         .format(withTime ? timeFormat : dateFormat);
 }
 
+export function formatDate(date: string | Date, format = "YYYY-MM-DD"): string {
+    return dayjs(date).tz(viTimezone).format(format);
+}
+
 export function today() {
     return new Date().toISOString().split("T")[0]
+}
+
+export function fieldLabel(field: string) {
+    return field
+        .replace(/([A-Z])/g, " $1") // insert space before capital letters
+        .replace(/^./, str => str.toUpperCase()); // capitalize first letter
 }
 
 export async function getAccessToken(): Promise<string | null> {
