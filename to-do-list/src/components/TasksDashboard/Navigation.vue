@@ -1,27 +1,38 @@
 <script setup lang="ts">
-import {useUserStore} from "@/stores/user.store.ts";
+import { useUserStore } from "@/stores/user.store.ts";
 
 const userSession = useUserStore();
-
 </script>
 
 <template>
   <nav class="navbar">
     <div class="nav-left">
-      <router-link to="/tasks" class="nav-link">Home</router-link>
-      <router-link to="/tasks/new" class="nav-link">New</router-link>
+      <router-link
+        to="/tasks"
+        class="nav-link"
+        >Home</router-link
+      >
+      <router-link
+        to="/tasks/new"
+        class="nav-link"
+        >New</router-link
+      >
     </div>
 
     <div class="nav-right">
       <router-link
-          v-if="userSession.isAuthenticated"
-          :to="`/tasks/${userSession.claims.id}`"
-          class="nav-link"
+        v-if="userSession.isAuthenticated"
+        :to="`/tasks/${userSession.claims.id}`"
+        class="nav-link"
       >
         {{ userSession.claims.username }}
       </router-link>
 
-      <router-link v-else to="/auth/sign-in" class="nav-link">
+      <router-link
+        v-else
+        to="/auth/sign-in"
+        class="nav-link"
+      >
         Sign in
       </router-link>
     </div>
@@ -51,7 +62,9 @@ const userSession = useUserStore();
     color: var(--c-text);
     text-decoration: none;
     padding: var(--s-1) var(--s-3);
-    transition: background 0.25s, color 0.25s;
+    transition:
+      background 0.25s,
+      color 0.25s;
 
     &:hover {
       background: var(--c-primary-h);
@@ -60,4 +73,3 @@ const userSession = useUserStore();
   }
 }
 </style>
-

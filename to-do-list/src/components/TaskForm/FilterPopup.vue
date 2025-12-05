@@ -1,73 +1,102 @@
 <script setup lang="ts">
+import { useAdvanceFilterForm } from "@/hooks/form/advance-filters-form.ts";
+import { type AdvanceFilterTaskRequest, sortDirection, taskFields } from "@/types/tasks.schema.ts";
+import { watch } from "vue";
 
-import {useAdvanceFilterForm} from "@/hooks/form/advance-filters-form.ts";
-import {type AdvanceFilterTaskRequest, sortDirection, taskFields} from "@/types/tasks.schema.ts";
-import {watch} from "vue";
+const visible = defineModel<boolean | undefined>("visible");
 
-const visible = defineModel<boolean | undefined>('visible')
-
-const {
-  state,
-  v$,
-  addSort,
-  removeSort,
-  reset
-} = useAdvanceFilterForm();
+const { state, v$, addSort, removeSort, reset } = useAdvanceFilterForm();
 
 async function applyFilters() {
-  emit("update:filters", {...state})
+  emit("update:filters", { ...state });
   visible.value = false;
 }
 
 function resetFilters() {
-  reset()
-  state.sorts = []
-  emit("update:filters", {...state})
+  reset();
+  state.sorts = [];
+  emit("update:filters", { ...state });
 }
 
-const props = defineProps<{ filters: AdvanceFilterTaskRequest }>()
-const emit = defineEmits<{ (e: "update:filters", v: AdvanceFilterTaskRequest): void }>()
+const props = defineProps<{ filters: AdvanceFilterTaskRequest }>();
+const emit = defineEmits<{ (e: "update:filters", v: AdvanceFilterTaskRequest): void }>();
 watch(
-    () => props.filters.keyword,
-    (val) => state.keyword = val ?? "",
-    {immediate: true, deep: true}
-)
+  () => props.filters.keyword,
+  (val) => (state.keyword = val ?? ""),
+  { immediate: true, deep: true },
+);
 </script>
 
 <template>
   <Dialog
-      v-model:visible="visible"
-      modal
-      class="container"
+    v-model:visible="visible"
+    modal
+    class="container"
   >
     <form @submit.prevent="applyFilters">
-
       <!-- Header -->
       <h2 class="form-title">Advance Filters</h2>
 
       <!-- Keyword -->
-      <div class="form-group" :class="{ error: v$.keyword.$errors.length }">
+      <div
+        class="form-group"
+        :class="{ error: v$.keyword.$errors.length }"
+      >
         <label for="keyword">Keyword</label>
-        <input id="keyword" name="keyword" type="text" v-model="state.keyword" placeholder="Search tasks..."/>
-        <div class="input-errors" v-for="error of v$.keyword.$errors" :key="error.$uid">
+        <input
+          id="keyword"
+          name="keyword"
+          type="text"
+          v-model="state.keyword"
+          placeholder="Search tasks..."
+        />
+        <div
+          class="input-errors"
+          v-for="error of v$.keyword.$errors"
+          :key="error.$uid"
+        >
           <span class="error-msg">{{ error.$message }}</span>
         </div>
       </div>
 
       <!-- Date Range -->
       <div class="form-row">
-        <div class="form-group" :class="{ error: v$.fromDate.$errors.length }">
+        <div
+          class="form-group"
+          :class="{ error: v$.fromDate.$errors.length }"
+        >
           <label for="fromDate">From date</label>
-          <input id="fromDate" name="fromDate" v-model="state.fromDate" type="date"/>
-          <div class="input-errors" v-for="error of v$.fromDate.$errors" :key="error.$uid">
+          <input
+            id="fromDate"
+            name="fromDate"
+            v-model="state.fromDate"
+            type="date"
+          />
+          <div
+            class="input-errors"
+            v-for="error of v$.fromDate.$errors"
+            :key="error.$uid"
+          >
             <span class="error-msg">{{ error.$message }}</span>
           </div>
         </div>
 
-        <div class="form-group" :class="{ error: v$.toDate.$errors.length }">
+        <div
+          class="form-group"
+          :class="{ error: v$.toDate.$errors.length }"
+        >
           <label for="toDate">To date</label>
-          <input id="toDate" name="toDate" v-model="state.toDate" type="date"/>
-          <div class="input-errors" v-for="error of v$.toDate.$errors" :key="error.$uid">
+          <input
+            id="toDate"
+            name="toDate"
+            v-model="state.toDate"
+            type="date"
+          />
+          <div
+            class="input-errors"
+            v-for="error of v$.toDate.$errors"
+            :key="error.$uid"
+          >
             <span class="error-msg">{{ error.$message }}</span>
           </div>
         </div>
@@ -76,61 +105,107 @@ watch(
       <!-- Sort Section -->
       <div class="sort-section">
         <h3>Sorting</h3>
-        <div v-for="(s, i) in state.sorts" :key="i" class="sort-item">
-
-          <div class="form-group" :class="{ error: v$.sorts.$errors.length }">
+        <div
+          v-for="(s, i) in state.sorts"
+          :key="i"
+          class="sort-item"
+        >
+          <div
+            class="form-group"
+            :class="{ error: v$.sorts.$errors.length }"
+          >
             <label for="field">Field</label>
-            <select id="field" name="field" v-model="s.field">
+            <select
+              id="field"
+              name="field"
+              v-model="s.field"
+            >
               <!-- Default option -->
               <option value="">Choose...</option>
 
               <!-- Dynamic options -->
               <option
-                  v-for="field in taskFields.options"
-                  :key="field"
-                  :value="field"
+                v-for="field in taskFields.options"
+                :key="field"
+                :value="field"
               >
                 {{ field }}
               </option>
             </select>
-            <div class="input-errors" v-for="error of v$.sorts.$errors" :key="error.$uid">
+            <div
+              class="input-errors"
+              v-for="error of v$.sorts.$errors"
+              :key="error.$uid"
+            >
               <span class="error-msg">{{ error.$message }}</span>
             </div>
           </div>
 
-          <div class="form-group" :class="{ error: v$.sorts.$errors.length }">
+          <div
+            class="form-group"
+            :class="{ error: v$.sorts.$errors.length }"
+          >
             <label for="direction">Direction</label>
-            <select id="direction" name="direction" v-model="s.direction">
+            <select
+              id="direction"
+              name="direction"
+              v-model="s.direction"
+            >
               <!-- Default option -->
               <option value="">Choose...</option>
 
               <!-- Dynamic options -->
               <option
-                  v-for="direction in sortDirection.options"
-                  :key="direction"
-                  :value="direction"
+                v-for="direction in sortDirection.options"
+                :key="direction"
+                :value="direction"
               >
                 {{ direction }}
               </option>
             </select>
-            <div class="input-errors" v-for="error of v$.sorts.$errors" :key="error.$uid">
+            <div
+              class="input-errors"
+              v-for="error of v$.sorts.$errors"
+              :key="error.$uid"
+            >
               <span class="error-msg">{{ error.$message }}</span>
             </div>
           </div>
 
-          <button type="button" @click="removeSort(i)" class="sort-remove">Remove</button>
+          <button
+            type="button"
+            @click="removeSort(i)"
+            class="sort-remove"
+          >
+            Remove
+          </button>
         </div>
 
-        <button type="button" @click="addSort" class="sort-add">Add</button>
+        <button
+          type="button"
+          @click="addSort"
+          class="sort-add"
+        >
+          Add
+        </button>
       </div>
 
       <!-- Footer -->
       <div class="filter-footer">
         <!--        <button type="button" @click="visible = false">Close</button>-->
-        <button type="button" @click="resetFilters">Clear</button>
-        <button type="button" @click="applyFilters">Apply</button>
+        <button
+          type="button"
+          @click="resetFilters"
+        >
+          Clear
+        </button>
+        <button
+          type="button"
+          @click="applyFilters"
+        >
+          Apply
+        </button>
       </div>
-
     </form>
   </Dialog>
 </template>

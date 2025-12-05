@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import {useRoute} from "vue-router";
-import {useRefreshStateStore} from "@/stores/refresh-state.store.ts";
-import {onActivated} from "vue";
+import { useRoute } from "vue-router";
+import { useRefreshStateStore } from "@/stores/refresh-state.store.ts";
+import { onActivated } from "vue";
 
-const route = useRoute()
+const route = useRoute();
 
 function isActive(tab: string) {
-  return route.path.endsWith(tab)
+  return route.path.endsWith(tab);
 }
 
 // console.log("Task Dashboard")
@@ -15,11 +15,10 @@ const refreshState = useRefreshStateStore();
 
 onActivated(() => {
   if (refreshState.getModified) {
-    console.log('Fetch API');
+    console.log("Fetch API");
     refreshState.setModified(false);
   }
 });
-
 </script>
 
 <template>
@@ -27,12 +26,22 @@ onActivated(() => {
 
   <!-- Tab menu -->
   <nav class="tabs">
-    <router-link to="/tasks/table" class="tab" :class="{ active: isActive('table') }">Table</router-link>
-    <router-link to="/tasks/board" class="tab" :class="{ active: isActive('board') }">Board</router-link>
+    <router-link
+      to="/tasks/table"
+      class="tab"
+      :class="{ active: isActive('table') }"
+      >Table</router-link
+    >
+    <router-link
+      to="/tasks/board"
+      class="tab"
+      :class="{ active: isActive('board') }"
+      >Board</router-link
+    >
   </nav>
 
   <main id="tasks-content">
-    <router-view/>
+    <router-view />
   </main>
 </template>
 
@@ -49,7 +58,9 @@ onActivated(() => {
     text-decoration: none;
     color: var(--c-text);
     border-bottom: 3px solid var(--c-border);
-    transition: color 0.2s ease, border-color 0.2s ease;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease;
 
     &:hover {
       color: var(--c-primary-h);

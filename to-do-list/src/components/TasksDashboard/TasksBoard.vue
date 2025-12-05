@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import {ref, watch, watchEffect} from "vue"
-import type {StatusesResponse, TaskItem, TasksResponse, TaskStatus} from "@/types/tasks.schema.ts";
-import {colDragReorder} from "@/hooks/ui/col-drag-reorder.ts";
-import {taskDragReorder} from "@/hooks/ui/task-drag-reorder.ts";
-import {useGetStatusesQuery, useGetTasksQuery} from "@/hooks/queries/task.query.ts";
-import {formatVNDate} from "@/helper/utils.ts";
-import {useToast} from "primevue/usetoast";
-import {useUpdateTaskStatusMutation} from "@/hooks/mutations/task.mutation.ts";
+import { ref, watch, watchEffect } from "vue";
+import type {
+  StatusesResponse,
+  TaskItem,
+  TasksResponse,
+  TaskStatus,
+} from "@/types/tasks.schema.ts";
+import { colDragReorder } from "@/hooks/ui/col-drag-reorder.ts";
+import { taskDragReorder } from "@/hooks/ui/task-drag-reorder.ts";
+import { useGetStatusesQuery, useGetTasksQuery } from "@/hooks/queries/task.query.ts";
+import { formatVNDate } from "@/helper/utils.ts";
+import { useToast } from "primevue/usetoast";
+import { useUpdateTaskStatusMutation } from "@/hooks/mutations/task.mutation.ts";
 
 const {
   data: taskStatuses,
@@ -14,25 +19,19 @@ const {
   isFetching: statusesFetching,
 } = useGetStatusesQuery();
 
-const {
-  data,
-  isLoading,
-  isFetching,
-} = useGetTasksQuery();
+const { data, isLoading, isFetching } = useGetTasksQuery();
 
 const statuses = ref<StatusesResponse>([]);
 const tasks = ref<TasksResponse>([]);
 
 // Group tasks by status
-const tasksByStatus = ref<Record<string, TaskItem[]>>({})
+const tasksByStatus = ref<Record<string, TaskItem[]>>({});
 
 function updateTasksByStatus() {
   const map: Record<string, TaskItem[]> = {};
 
-  statuses.value.forEach(status => {
-    map[status.id!] = tasks.value.filter(
-        task => task.status?.id === status.id
-    );
+  statuses.value.forEach((status) => {
+    map[status.id!] = tasks.value.filter((task) => task.status?.id === status.id);
   });
 
   tasksByStatus.value = map;
@@ -41,15 +40,15 @@ function updateTasksByStatus() {
 // Sync when API fetch done
 watchEffect(() => {
   if (taskStatuses.value) {
-    statuses.value = [...taskStatuses.value]
+    statuses.value = [...taskStatuses.value];
   }
 
   if (data.value) {
-    tasks.value = [...data.value]
+    tasks.value = [...data.value];
   }
-})
+});
 
-watch([tasks, statuses], updateTasksByStatus, {immediate: true});
+watch([tasks, statuses], updateTasksByStatus, { immediate: true });
 
 const {
   highlightIndex: highlightStatusIndex,
@@ -57,8 +56,8 @@ const {
   onDragStart: onTitleDragStart,
   onDragEnd: onTitleDragEnd,
   detectHighlight: detectStatusHighlight,
-  applyReorder: applyStatusReorder
-} = colDragReorder<TaskStatus>()
+  applyReorder: applyStatusReorder,
+} = colDragReorder<TaskStatus>();
 
 const toast = useToast();
 const mutation = useUpdateTaskStatusMutation();
@@ -67,49 +66,60 @@ const {
   onTaskDragStart: onTaskDragStart,
   onTaskDragEnd: onTaskDragEnd,
   detectTaskHighlight: detectTaskHighlight,
-  applyTaskReorder: applyTaskReorder
+  applyTaskReorder: applyTaskReorder,
 } = taskDragReorder(mutation, toast);
-
 </script>
 
 <template>
   <div v-if="isLoading || statusesLoading">Loading...</div>
 
-  <div v-else class="container">
+  <div
+    v-else
+    class="container"
+  >
     <div v-if="statuses.length === 0 || tasks.length === 0">No results</div>
 
-    <div v-else class="board-columns"
-         @dragover.prevent="(event) => detectStatusHighlight(event, 'board-column')"
-         @drop="() => statuses = applyStatusReorder(statuses)"
+    <div
+      v-else
+      class="board-columns"
+      @dragover.prevent="(event) => detectStatusHighlight(event, 'board-column')"
+      @drop="() => (statuses = applyStatusReorder(statuses))"
     >
-      <div class="board-column" v-for="(taskStatus, index) in statuses"
-           :key="taskStatus.id"
-           :class="{
-                'highlight-left': highlightStatusIndex === index && highlightStatusSide === 'left',
-                'highlight-right': highlightStatusIndex === index && highlightStatusSide === 'right'
-             }"
-           @dragover.prevent="(event) => detectTaskHighlight(event, 'board-card', taskStatus.id!)"
-           @drop="() => tasksByStatus = applyTaskReorder(tasksByStatus, taskStatus.id!)"
+      <div
+        class="board-column"
+        v-for="(taskStatus, index) in statuses"
+        :key="taskStatus.id"
+        :class="{
+          'highlight-left': highlightStatusIndex === index && highlightStatusSide === 'left',
+          'highlight-right': highlightStatusIndex === index && highlightStatusSide === 'right',
+        }"
+        @dragover.prevent="(event) => detectTaskHighlight(event, 'board-card', taskStatus.id!)"
+        @drop="() => (tasksByStatus = applyTaskReorder(tasksByStatus, taskStatus.id!))"
       >
-
         <h3
-            draggable="true"
-            @dragstart="(event) => onTitleDragStart(event, index)"
-            @dragend="onTitleDragEnd"
+          draggable="true"
+          @dragstart="(event) => onTitleDragStart(event, index)"
+          @dragend="onTitleDragEnd"
         >
           {{ taskStatus.title }}
         </h3>
 
         <div class="board-card-container">
-          <div class="board-card" v-for="(task, index) in tasksByStatus[taskStatus.id!]"
-               :key="task.id"
-               :class="{
-                   'highlight-top': highlightTaskMap[taskStatus.id!]?.index === index && highlightTaskMap[taskStatus.id!]?.side === 'top',
-                   'highlight-bottom': highlightTaskMap[taskStatus.id!]?.index === index && highlightTaskMap[taskStatus.id!]?.side === 'bottom'
-                 }"
-               draggable="true"
-               @dragstart="(event) => onTaskDragStart(event, task.id!, index, taskStatus.id!)"
-               @dragend="onTaskDragEnd"
+          <div
+            class="board-card"
+            v-for="(task, index) in tasksByStatus[taskStatus.id!]"
+            :key="task.id"
+            :class="{
+              'highlight-top':
+                highlightTaskMap[taskStatus.id!]?.index === index &&
+                highlightTaskMap[taskStatus.id!]?.side === 'top',
+              'highlight-bottom':
+                highlightTaskMap[taskStatus.id!]?.index === index &&
+                highlightTaskMap[taskStatus.id!]?.side === 'bottom',
+            }"
+            draggable="true"
+            @dragstart="(event) => onTaskDragStart(event, task.id!, index, taskStatus.id!)"
+            @dragend="onTaskDragEnd"
           >
             <strong>{{ task.title }}</strong>
             <!--              <p>Assignees: {{ task.assignees!.join(', ') }}</p>-->
@@ -121,9 +131,7 @@ const {
 
         <span v-if="isFetching || statusesFetching">Refreshing...</span>
       </div>
-
     </div>
-
   </div>
 </template>
 

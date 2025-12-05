@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import {computed, ref} from "vue"
-import {colDragReorder} from "@/hooks/ui/col-drag-reorder.ts";
-import {useGetStatusesQuery, useSearchTasksQuery} from "@/hooks/queries/task.query.ts";
+import { computed, ref } from "vue";
+import { colDragReorder } from "@/hooks/ui/col-drag-reorder.ts";
+import { useGetStatusesQuery, useSearchTasksQuery } from "@/hooks/queries/task.query.ts";
 import CellView from "@/components/TasksDashboard/CellView.vue";
 import FilterPopup from "@/components/TaskForm/FilterPopup.vue";
-import type {AdvanceFilterTaskRequest} from "@/types/tasks.schema.ts";
+import type { AdvanceFilterTaskRequest } from "@/types/tasks.schema.ts";
+import EditPopup from "@/components/TaskForm/EditPopup.vue";
 
 const {
   data: taskStatuses,
@@ -18,18 +19,20 @@ const {
   data,
   isLoading,
   isFetching,
+  refetch,
   setPage,
   setKeyword,
   setFromDate,
   setToDate,
   setSorts,
-} = useSearchTasksQuery({
-      queries: {
-        page: 1,
-        size: 8,
-      },
+} = useSearchTasksQuery(
+  {
+    queries: {
+      page: 1,
+      size: 8,
     },
-    {debounceMs: 400}
+  },
+  { debounceMs: 400 },
 );
 
 // Sample data
@@ -42,129 +45,143 @@ const setFilters = (filters: AdvanceFilterTaskRequest) => {
   setFromDate(filters.fromDate ?? "");
   setToDate(filters.toDate ?? "");
   setSorts(filters.sorts ?? []);
-}
+};
 
 interface Column {
-  key: string
-  label: string
+  key: string;
+  label: string;
 }
 
 // Columns definition (draggable)
 const columns = ref<Column[]>([
-  {key: "title", label: "Title"},
-  {key: "status", label: "Status"},
-  {key: "startDay", label: "Start Day"},
-  {key: "targetDay", label: "Target Day"},
-  {key: "endDay", label: "End Day"},
-])
+  { key: "title", label: "Title" },
+  { key: "status", label: "Status" },
+  { key: "startDay", label: "Start Day" },
+  { key: "targetDay", label: "Target Day" },
+  { key: "endDay", label: "End Day" },
+]);
 
-const {
-  highlightIndex,
-  highlightSide,
-  onDragStart,
-  onDragEnd,
-  detectHighlight,
-  applyReorder
-} = colDragReorder<Column>()
-
-
-const editingCell = ref<{ row: number; col: string } | null>(null)
+const { highlightIndex, highlightSide, onDragStart, onDragEnd, detectHighlight, applyReorder } =
+  colDragReorder<Column>();
 
 const columnHighlightClasses = (index: number) => ({
   "highlight-left": highlightIndex.value === index && highlightSide.value === "left",
   "highlight-right": highlightIndex.value === index && highlightSide.value === "right",
 });
 
-const isEditing = (row: number, col: string) => {
-  // return editingCell.value?.row === row && editingCell.value?.col === col;
-  return false;
-}
-const startEditing = (row: number, col: string) => editingCell.value = {row, col};
-const stopEditing = () => (editingCell.value = null);
+const showEditing = ref(false);
+const selectedTaskId = ref<string | null>(null);
 
-const show = ref<boolean>(false);
+function startEditing(taskId: string) {
+  selectedTaskId.value = taskId;
+  showEditing.value = true;
+}
+
+function stopEditing() {
+  selectedTaskId.value = null;
+  refetch();
+  showEditing.value = false;
+}
+
+const showAdvanceFilters = ref<boolean>(false);
 </script>
 
 <template>
   <div class="filter-bar">
     <input
-        v-model="filters.keyword"
-        class="search-input"
-        placeholder="Search..."
+      v-model="filters.keyword"
+      class="search-input"
+      placeholder="Search..."
     />
 
-    <button @click="() => { show = true; }">
+    <button
+      @click="
+        () => {
+          showAdvanceFilters = true;
+        }
+      "
+    >
       Advanced Filters
     </button>
   </div>
 
   <FilterPopup
-      :filters="filters"
-      @update:filters="setFilters"
-      v-model:visible="show"
+    :filters="filters"
+    @update:filters="setFilters"
+    v-model:visible="showAdvanceFilters"
   />
 
   <div v-if="isLoading || statusesLoading">Loading...</div>
 
-  <div v-else-if="statuses.length === 0 || tasks.length === 0">
-    No results
-  </div>
+  <div v-else-if="statuses.length === 0 || tasks.length === 0">No results</div>
 
   <div v-else>
     <div v-if="statuses.length === 0 || tasks.length === 0">No results</div>
 
     <div class="table-wrapper">
       <table
-          class="task-table"
-          @dragover.prevent="(e) => detectHighlight(e, 'header')"
-          @drop="() => (columns = applyReorder(columns))"
+        class="task-table"
+        @dragover.prevent="(e) => detectHighlight(e, 'header')"
+        @drop="() => (columns = applyReorder(columns))"
       >
         <thead>
-        <tr>
-          <th class="header"
+          <tr>
+            <th
+              class="header"
               v-for="(col, idx) in columns"
               :key="col.key"
               draggable="true"
               @dragstart="(e) => onDragStart(e, idx)"
               @dragend="onDragEnd"
               :class="columnHighlightClasses(idx)"
-          >
-            {{ col.label }}
-          </th>
-        </tr>
+            >
+              {{ col.label }}
+            </th>
+          </tr>
         </thead>
 
         <tbody>
-        <tr v-for="(task, row) in tasks" :key="task.id">
-          <td
+          <tr
+            v-for="(task, _) in tasks"
+            :key="task.id"
+          >
+            <td
               v-for="(col, colIndex) in columns"
               :key="col.key"
-              @click="startEditing(row, col.key)"
+              @click.stop="startEditing(task.id!)"
               :class="columnHighlightClasses(colIndex)"
-          >
-            <CellView
+            >
+              <CellView
                 :task="task"
                 :col="col"
-                :isEditing="isEditing(row, col.key)"
                 :statuses="statuses"
-                @stop="stopEditing"
-            />
-          </td>
-        </tr>
+              />
+            </td>
+          </tr>
         </tbody>
+
+        <EditPopup
+          v-if="showEditing"
+          @stop="stopEditing"
+          v-model:visible="showEditing"
+          :taskId="selectedTaskId!"
+        />
       </table>
     </div>
 
     <div class="pagination">
-      <button :disabled="queries.page === 1" @click="setPage(queries.page - 1)">
+      <button
+        :disabled="queries.page === 1"
+        @click="setPage(queries.page - 1)"
+      >
         Previous
       </button>
 
       <span>Page {{ queries.page }} / {{ totalPages }}</span>
 
       <button
-          :disabled="queries.page === totalPages"
-          @click="setPage(queries.page + 1)"
+        :disabled="queries.page === totalPages"
+        @click="setPage(queries.page + 1)"
       >
         Next
       </button>

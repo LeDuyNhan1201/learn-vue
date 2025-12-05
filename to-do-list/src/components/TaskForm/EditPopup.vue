@@ -1,22 +1,28 @@
 <script setup lang="ts">
-import { computed, onMounted, watch } from "vue";
 import { taskIdPathParam, updateTaskRequest } from "@/types/tasks.schema.ts";
-import { useTaskForm } from "@/hooks/form/create-task.form.ts";
+import { computed, defineProps, onMounted, watch } from "vue";
 import { fieldLabel, formatDate, today } from "@/helper/utils.ts";
-import { useGetStatusesQuery, useGetTaskDetailsQuery } from "@/hooks/queries/task.query.ts";
-import { useRoute, useRouter } from "vue-router";
-import { useConfirm } from "primevue/useconfirm";
-import { useDeleteTaskMutation, useUpdateTaskMutation } from "@/hooks/mutations/task.mutation.ts";
 import { useToast } from "primevue/usetoast";
+import { useGetStatusesQuery, useGetTaskDetailsQuery } from "@/hooks/queries/task.query.ts";
+import { useTaskForm } from "@/hooks/form/create-task.form.ts";
+import { useUpdateTaskMutation } from "@/hooks/mutations/task.mutation.ts";
 
-const confirm = useConfirm();
+const visible = defineModel<boolean | undefined>("visible");
+const props = defineProps<{
+  taskId: string;
+}>();
+
+const emit = defineEmits(["stop"]);
+
 const toast = useToast();
-const route = useRoute();
-const router = useRouter();
-const taskId = taskIdPathParam.parse({ id: route.params.id as string });
+const taskId = computed(() => {
+  return taskIdPathParam.parse({ id: props.taskId });
+});
 
 const { data: taskStatuses } = useGetStatusesQuery();
-const { data: selectedTask } = useGetTaskDetailsQuery(() => taskId);
+const { data: selectedTask } = useGetTaskDetailsQuery(() => taskId.value, {
+  enabled: computed(() => visible.value === true),
+});
 
 const currentTask = computed(() => {
   if (!selectedTask.value || !selectedTask.value.status) return null;
@@ -57,7 +63,6 @@ onMounted(() => {
 });
 
 const { mutate: updateMutate, isPending: updateIsPending } = useUpdateTaskMutation();
-const { mutate: deleteMutate, isPending: deleteIsPending } = useDeleteTaskMutation();
 
 // Generic toast helper
 function showToast(severity: "success" | "error", summary: string, detail: string) {
@@ -74,44 +79,30 @@ async function onSubmit() {
 
   updateMutate(
     {
-      taskId: taskId,
+      taskId: taskId.value,
       body: updateTaskRequest.parse(state),
     },
     {
-      onSuccess: () => showToast("success", "Done", "Task has been updated successfully"),
+      onSuccess: () => {
+        showToast("success", "Done", "Task has been updated successfully");
+        emit("stop");
+      },
       onError: (error) =>
         showToast("error", "Task Update Failed", error.message || "An error occurred"),
     },
   );
 }
-
-// Delete task
-function deleteTask() {
-  confirm.require({
-    message: `Are you sure you want to delete this task?`,
-    header: `Task '${state.title}'`,
-    icon: "",
-    acceptLabel: "Yes",
-    rejectLabel: "No",
-    accept: () => {
-      deleteMutate(taskId, {
-        onSuccess: () => {
-          showToast("success", "Done", "Task has been deleted successfully");
-          router.push("/tasks");
-        },
-        onError: (error) =>
-          showToast("error", "Task Deletion Failed", error.message || "An error occurred"),
-      });
-    },
-    reject: () => {},
-  });
-}
 </script>
 
 <template>
-  <div class="container">
+  <Dialog
+    v-model:visible="visible"
+    modal
+    class="container"
+  >
     <form @submit.prevent="onSubmit">
-      <h2 class="form-title">Details</h2>
+      <!-- Header -->
+      <h2 class="form-title">Editing...</h2>
 
       <!-- Title -->
       <div
@@ -190,99 +181,83 @@ function deleteTask() {
       </template>
 
       <!-- Buttons -->
-      <div class="btn-group">
-        <button
-          type="button"
-          :disabled="updateIsPending"
-          @click="onSubmit"
-        >
-          Save Task
-        </button>
-        <button
-          type="button"
-          :disabled="deleteIsPending"
-          @click="deleteTask"
-        >
-          Delete Task
-        </button>
-      </div>
+      <button
+        type="button"
+        :disabled="updateIsPending"
+        @click="onSubmit"
+      >
+        Save Task
+      </button>
     </form>
-  </div>
+  </Dialog>
 </template>
 
 <style scoped lang="scss">
-/* FORM CONTAINER */
 .container {
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+  form {
+    width: 500px;
+    background: var(--c-surface);
 
-/* FORM */
-form {
-  width: 500px;
-  padding: var(--s-6);
-  background: var(--c-bg);
-  border: 1px solid var(--c-border);
-
-  /* Form title */
-  .form-title {
-    text-align: start;
-    margin-bottom: var(--s-6);
-  }
-
-  /* Form groups */
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: var(--s-4);
-
-    label {
-      font-weight: var(--f-bold);
-      margin-bottom: var(--s-2);
+    /* Form title */
+    .form-title {
+      text-align: start;
+      margin-bottom: var(--s-6);
     }
 
-    input,
-    select {
-      padding: var(--s-2) var(--s-4);
-      border: 1px solid var(--c-border);
-      background: var(--c-bg);
-      transition: 0.2s ease;
-      outline: none;
+    /* Form groups */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: var(--s-4);
 
-      &:focus {
-        border-color: var(--c-primary-h);
-        box-shadow: var(--shadow-text);
+      label {
+        font-weight: var(--f-bold);
+        margin-bottom: var(--s-2);
       }
-    }
 
-    &.error {
       input,
       select {
-        border-color: var(--c-err) !important;
-        background: var(--c-err-bg);
+        padding: var(--s-2) var(--s-4);
+        border: 1px solid var(--c-border);
+        background: var(--c-bg);
+        transition: 0.2s ease;
+        outline: none;
+
+        &:focus {
+          border-color: var(--c-primary-h);
+          box-shadow: var(--shadow-text);
+        }
       }
 
-      .input-errors {
-        margin-top: var(--s-1);
+      &.error {
+        input,
+        select {
+          border-color: var(--c-err) !important;
+          background: var(--c-err-bg);
+        }
 
-        .error-msg {
-          color: var(--c-err);
+        .input-errors {
+          margin-top: var(--s-1);
+
+          .error-msg {
+            color: var(--c-err);
+          }
         }
       }
     }
-  }
-
-  /* Button group */
-  .btn-group {
-    display: flex;
-    flex-direction: row-reverse;
-    gap: var(--s-3);
-    margin-top: var(--s-1);
 
     button[type="button"] {
-      flex: 1;
+      width: 100%;
+      padding: var(--s-2) var(--s-4);
+      background: var(--c-primary);
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--c-primary-h);
+        font-weight: var(--f-weight);
+      }
     }
   }
 }

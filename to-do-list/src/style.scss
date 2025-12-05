@@ -133,7 +133,9 @@ button {
   font-weight: var(--f-weight);
   background: var(--c-surface);
   cursor: pointer;
-  transition: border-color 0.25s ease, background 0.25s ease;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease;
 
   &:hover {
     background: var(--c-primary-h);
@@ -202,13 +204,16 @@ button {
   gap: var(--s-2) !important;
 }
 
-.p-inputtext, .p-dropdown, .p-calendar .p-inputtext {
+.p-inputtext,
+.p-dropdown,
+.p-calendar .p-inputtext {
   background: var(--c-bg) !important;
   border: 1px solid var(--c-border) !important;
   padding: var(--s-2) var(--s-4) !important; /* or --space-* if you use old names */
 }
 
-.error .p-inputtext, .error .p-dropdown {
+.error .p-inputtext,
+.error .p-dropdown {
   border-color: var(--c-err) !important;
   background: var(--c-err-bg) !important;
 }
@@ -301,8 +306,3 @@ button {
   background: var(--c-surface) !important;
   border: 1px solid var(--c-border) !important;
 }
-
-
-
-
-

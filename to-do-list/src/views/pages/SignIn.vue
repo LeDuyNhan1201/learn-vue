@@ -4,16 +4,30 @@
       <h2 class="auth-title">Sign In</h2>
 
       <label>Email</label>
-      <input type="email" required>
+      <input
+        type="email"
+        required
+      />
 
       <label>Password</label>
-      <input type="password" required>
+      <input
+        type="password"
+        required
+      />
 
-      <a class="link-right" href="/auth/forgot">Recover password</a>
+      <a
+        class="link-right"
+        href="/auth/forgot"
+        >Recover password</a
+      >
 
       <button type="submit">Sign in</button>
 
-      <a class="link-center" href="/auth/sign-up">Already have account? Sign up</a>
+      <a
+        class="link-center"
+        href="/auth/sign-up"
+        >Already have account? Sign up</a
+      >
     </form>
   </div>
 </template>
@@ -91,5 +105,4 @@
 }
 </style>
 
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>

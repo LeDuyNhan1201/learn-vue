@@ -15,4 +15,17 @@ pnpm -v
 vite -v
 
 pnpm create vite to-do-list --template vue-ts
+
+pnpm add -D \
+  eslint \
+  prettier \
+  @typescript-eslint/parser \
+  @typescript-eslint/eslint-plugin \
+  eslint-plugin-vue \
+  eslint-plugin-prettier \
+  eslint-config-prettier
+
+pnpm lint
+pnpm format
+
 ```

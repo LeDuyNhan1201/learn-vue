@@ -1,39 +1,39 @@
-import {createApp} from 'vue'
-import App from '@/App.vue'
-import {createPinia} from "pinia";
+import { createApp } from "vue";
+import App from "@/App.vue";
+import { createPinia } from "pinia";
 import router from "@/router";
-import {useUserStore} from "@/stores/user.store.ts";
-import {QueryClient, VueQueryPlugin} from "@tanstack/vue-query";
+import { useUserStore } from "@/stores/user.store.ts";
+import { QueryClient, VueQueryPlugin } from "@tanstack/vue-query";
 import PrimeVue from "primevue/config";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import DatePicker from "primevue/datepicker";
 import Select from "primevue/select";
 import Button from "primevue/button";
-import TabMenu from 'primevue/tabmenu';
-import DataTable from 'primevue/datatable';
-import ConfirmDialog from 'primevue/confirmdialog';
-import ConfirmPopup from 'primevue/confirmpopup';
+import TabMenu from "primevue/tabmenu";
+import DataTable from "primevue/datatable";
+import ConfirmDialog from "primevue/confirmdialog";
+import ConfirmPopup from "primevue/confirmpopup";
 import ConfirmationService from "primevue/confirmationservice";
 import ToastService from "primevue/toastservice";
 import Toast from "primevue/toast";
 
-import '@/style.scss';
+import "@/style.scss";
 
 const app = createApp(App);
-const pinia = createPinia()
+const pinia = createPinia();
 const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            retry: 1,
-            refetchOnWindowFocus: false,
-        },
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
     },
+  },
 });
 
-app.use(pinia)
-app.use(router);  // <-- apply router here
-app.use(VueQueryPlugin, {queryClient});
+app.use(pinia);
+app.use(router); // <-- apply router here
+app.use(VueQueryPlugin, { queryClient });
 
 app.use(PrimeVue);
 app.use(ConfirmationService);
@@ -55,4 +55,4 @@ app.component("Toast", Toast);
 const userStore = useUserStore();
 userStore.initializeFromCookie();
 
-app.mount('#app');
+app.mount("#app");

@@ -1,25 +1,21 @@
 <script setup lang="ts">
-import {useCreateTaskForm} from "@/hooks/form/create-task.form.ts";
-import {useGetStatusesQuery} from "@/hooks/queries/task.query.ts";
-import {createTaskRequest} from "@/types/tasks.schema.ts";
-import {fieldLabel, today} from "@/helper/utils.ts";
-import {useCreateTaskMutation} from "@/hooks/mutations/task.mutation.ts";
-import {useToast} from "primevue/usetoast";
-import {useRouter} from "vue-router";
+import { useTaskForm } from "@/hooks/form/create-task.form.ts";
+import { useGetStatusesQuery } from "@/hooks/queries/task.query.ts";
+import { createTaskRequest } from "@/types/tasks.schema.ts";
+import { fieldLabel, today } from "@/helper/utils.ts";
+import { useCreateTaskMutation } from "@/hooks/mutations/task.mutation.ts";
+import { useToast } from "primevue/usetoast";
+import { useRouter } from "vue-router";
 
-const {data: taskStatuses} = useGetStatusesQuery();
+const { data: taskStatuses } = useGetStatusesQuery();
 
-const {
-  v$,
-  state,
-  validate,
-} = useCreateTaskForm({
+const { v$, state, validate } = useTaskForm({
   title: "",
   // assignees: ["test"] as string[],
   statusId: "",
   startDay: today(),
   targetDay: today(),
-  endDay: today()
+  endDay: today(),
 });
 
 // const assigneesString = computed({
@@ -29,10 +25,7 @@ const {
 //   },
 // });
 
-const {
-  mutate,
-  isPending,
-} = useCreateTaskMutation()
+const { mutate, isPending } = useCreateTaskMutation();
 
 const toast = useToast();
 
@@ -59,11 +52,11 @@ async function onSubmit() {
       toast.add({
         severity: "error",
         summary: "Task Creation Failed",
-        detail: error.message || 'An error occurred while creating the task.',
+        detail: error.message || "An error occurred while creating the task.",
         life: 30000000000000000000000,
       });
-    }
-  })
+    },
+  });
 }
 </script>
 
@@ -73,10 +66,22 @@ async function onSubmit() {
       <h2 class="form-title">New Task</h2>
 
       <!-- Title -->
-      <div :class="{ error: v$.title.$errors.length }" class="form-group">
+      <div
+        :class="{ error: v$.title.$errors.length }"
+        class="form-group"
+      >
         <label for="title">Title</label>
-        <input id="title" name="title" v-model="state.title" type="text"/>
-        <div class="input-errors" v-for="error of v$.title.$errors" :key="error.$uid">
+        <input
+          id="title"
+          name="title"
+          v-model="state.title"
+          type="text"
+        />
+        <div
+          class="input-errors"
+          v-for="error of v$.title.$errors"
+          :key="error.$uid"
+        >
           <span class="error-msg">{{ error.$message }}</span>
         </div>
       </div>
@@ -90,38 +95,67 @@ async function onSubmit() {
       <!--      </div>-->
 
       <!-- Status -->
-      <div :class="{ error: v$.statusId.$errors.length }" class="form-group">
+      <div
+        :class="{ error: v$.statusId.$errors.length }"
+        class="form-group"
+      >
         <label for="status">Status</label>
-        <select id="status" name="status" v-model="state.statusId">
+        <select
+          id="status"
+          name="status"
+          v-model="state.statusId"
+        >
           <option value="">Choose...</option>
-          <option v-for="status in taskStatuses" :key="status.id" :value="status.id">
+          <option
+            v-for="status in taskStatuses"
+            :key="status.id"
+            :value="status.id"
+          >
             {{ status.title }}
           </option>
         </select>
-        <div class="input-errors" v-for="error in v$.statusId.$errors" :key="error.$uid">
+        <div
+          class="input-errors"
+          v-for="error in v$.statusId.$errors"
+          :key="error.$uid"
+        >
           <span class="error-msg">{{ error.$message }}</span>
         </div>
       </div>
 
       <!-- Dates -->
-      <template v-for="field of ['startDay', 'targetDay', 'endDay']" :key="field">
-        <div :class="{ error: v$[field].$errors.length }" class="form-group">
+      <template
+        v-for="field of ['startDay', 'targetDay', 'endDay']"
+        :key="field"
+      >
+        <div
+          :class="{ error: v$[field].$errors.length }"
+          class="form-group"
+        >
           <label :for="field">{{ fieldLabel(field) }}</label>
-          <input :id="field" :name="field" v-model="state[field]" type="date"/>
-          <div class="input-errors" v-for="error in v$[field].$errors" :key="error.$uid">
+          <input
+            :id="field"
+            :name="field"
+            v-model="state[field]"
+            type="date"
+          />
+          <div
+            class="input-errors"
+            v-for="error in v$[field].$errors"
+            :key="error.$uid"
+          >
             <span class="error-msg">{{ error.$message }}</span>
           </div>
         </div>
       </template>
 
       <button
-          type="button"
-          :disabled="isPending"
-          @click="onSubmit"
+        type="button"
+        :disabled="isPending"
+        @click="onSubmit"
       >
         Create Task
       </button>
-
     </form>
   </div>
 </template>
