@@ -45,6 +45,16 @@ export function fieldLabel(field: string) {
     .replace(/^./, (str) => str.toUpperCase()); // capitalize first letter
 }
 
+export const prettierStatus = (status?: string) => {
+    const statusMap: Record<string, string> = {
+        "To do": "status-todo chip-danger",
+        "In Progress": "status-inprogress chip-warning",
+        "Done": "status-done chip-success",
+    };
+
+    return statusMap[status ?? ""] ?? "status-default";
+};
+
 export async function getAccessToken(): Promise<string | null> {
   const userStore = useUserStore();
 

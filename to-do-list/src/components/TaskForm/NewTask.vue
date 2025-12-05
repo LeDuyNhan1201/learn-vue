@@ -53,7 +53,7 @@ async function onSubmit() {
         severity: "error",
         summary: "Task Creation Failed",
         detail: error.message || "An error occurred while creating the task.",
-        life: 30000000000000000000000,
+        life: 3000,
       });
     },
   });

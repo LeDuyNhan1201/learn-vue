@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { ref, watch, watchEffect } from "vue";
+import {ref, watch, watchEffect} from "vue";
 import type {
   StatusesResponse,
   TaskItem,
   TasksResponse,
   TaskStatus,
 } from "@/types/tasks.schema.ts";
-import { colDragReorder } from "@/hooks/ui/col-drag-reorder.ts";
-import { taskDragReorder } from "@/hooks/ui/task-drag-reorder.ts";
-import { useGetStatusesQuery, useGetTasksQuery } from "@/hooks/queries/task.query.ts";
-import { formatVNDate } from "@/helper/utils.ts";
-import { useToast } from "primevue/usetoast";
-import { useUpdateTaskStatusMutation } from "@/hooks/mutations/task.mutation.ts";
+import {colDragReorder} from "@/hooks/ui/col-drag-reorder.ts";
+import {taskDragReorder} from "@/hooks/ui/task-drag-reorder.ts";
+import {useGetStatusesQuery, useGetTasksQuery} from "@/hooks/queries/task.query.ts";
+import {formatVNDate, prettierStatus} from "@/helper/utils.ts";
+import {useToast} from "primevue/usetoast";
+import {useUpdateTaskStatusMutation} from "@/hooks/mutations/task.mutation.ts";
 
 const {
   data: taskStatuses,
@@ -19,7 +19,7 @@ const {
   isFetching: statusesFetching,
 } = useGetStatusesQuery();
 
-const { data, isLoading, isFetching } = useGetTasksQuery();
+const {data, isLoading, isFetching} = useGetTasksQuery();
 
 const statuses = ref<StatusesResponse>([]);
 const tasks = ref<TasksResponse>([]);
@@ -48,7 +48,7 @@ watchEffect(() => {
   }
 });
 
-watch([tasks, statuses], updateTasksByStatus, { immediate: true });
+watch([tasks, statuses], updateTasksByStatus, {immediate: true});
 
 const {
   highlightIndex: highlightStatusIndex,
@@ -68,58 +68,70 @@ const {
   detectTaskHighlight: detectTaskHighlight,
   applyTaskReorder: applyTaskReorder,
 } = taskDragReorder(mutation, toast);
+
+const columnHighlightClasses = (index: number, statusTitle: string) => {
+  const base = prettierStatus(statusTitle);
+  const isActive = highlightStatusIndex.value === index;
+
+  return {
+    [base]: true,
+    [`highlight-left-${base}`]: isActive && highlightStatusSide.value === 'left',
+    [`highlight-right-${base}`]: isActive && highlightStatusSide.value === 'right',
+  };
+};
+
+const taskHighlightClasses = (index: number, statusId: string) => ({
+  'highlight-top':
+      highlightTaskMap.value[statusId]?.index === index &&
+      highlightTaskMap.value[statusId]?.side === 'top',
+  'highlight-bottom':
+      highlightTaskMap.value[statusId]?.index === index &&
+      highlightTaskMap.value[statusId]?.side === 'bottom',
+});
 </script>
 
 <template>
   <div v-if="isLoading || statusesLoading">Loading...</div>
 
   <div
-    v-else
-    class="container"
+      v-else
+      class="container"
   >
     <div v-if="statuses.length === 0 || tasks.length === 0">No results</div>
 
     <div
-      v-else
-      class="board-columns"
-      @dragover.prevent="(event) => detectStatusHighlight(event, 'board-column')"
-      @drop="() => (statuses = applyStatusReorder(statuses))"
+        v-else
+        class="board-columns"
+        @dragover.prevent="(event) => detectStatusHighlight(event, 'board-column')"
+        @drop="() => (statuses = applyStatusReorder(statuses))"
     >
       <div
-        class="board-column"
-        v-for="(taskStatus, index) in statuses"
-        :key="taskStatus.id"
-        :class="{
-          'highlight-left': highlightStatusIndex === index && highlightStatusSide === 'left',
-          'highlight-right': highlightStatusIndex === index && highlightStatusSide === 'right',
-        }"
-        @dragover.prevent="(event) => detectTaskHighlight(event, 'board-card', taskStatus.id!)"
-        @drop="() => (tasksByStatus = applyTaskReorder(tasksByStatus, taskStatus.id!))"
+          class="board-column"
+          v-for="(taskStatus, index) in statuses"
+          :key="taskStatus.id"
+          :class="columnHighlightClasses(index, taskStatus.title)"
+          @dragover.prevent="(event) => detectTaskHighlight(event, 'board-card', taskStatus.id!)"
+          @drop="() => (tasksByStatus = applyTaskReorder(tasksByStatus, taskStatus.id!))"
       >
-        <h3
-          draggable="true"
-          @dragstart="(event) => onTitleDragStart(event, index)"
-          @dragend="onTitleDragEnd"
+        <div class="status-chip"
+             draggable="true"
+             @dragstart="(event) => onTitleDragStart(event, index)"
+             @dragend="onTitleDragEnd"
         >
-          {{ taskStatus.title }}
-        </h3>
+          <Chip :class="prettierStatus(taskStatus.title)">
+            {{ taskStatus.title }}
+          </Chip>
+        </div>
 
         <div class="board-card-container">
           <div
-            class="board-card"
-            v-for="(task, index) in tasksByStatus[taskStatus.id!]"
-            :key="task.id"
-            :class="{
-              'highlight-top':
-                highlightTaskMap[taskStatus.id!]?.index === index &&
-                highlightTaskMap[taskStatus.id!]?.side === 'top',
-              'highlight-bottom':
-                highlightTaskMap[taskStatus.id!]?.index === index &&
-                highlightTaskMap[taskStatus.id!]?.side === 'bottom',
-            }"
-            draggable="true"
-            @dragstart="(event) => onTaskDragStart(event, task.id!, index, taskStatus.id!)"
-            @dragend="onTaskDragEnd"
+              class="board-card"
+              v-for="(task, index) in tasksByStatus[taskStatus.id!]"
+              :key="task.id"
+              :class="taskHighlightClasses(index, taskStatus.id!)"
+              draggable="true"
+              @dragstart="(event) => onTaskDragStart(event, task.id!, index, taskStatus.id!)"
+              @dragend="onTaskDragEnd"
           >
             <strong>{{ task.title }}</strong>
             <!--              <p>Assignees: {{ task.assignees!.join(', ') }}</p>-->
@@ -166,16 +178,33 @@ const {
   transition: border 0.15s ease;
 
   /* Hover h3 -> highlight column */
-  &:has(h3:hover) {
+  &:has(.status-chip:hover) {
     border-color: var(--c-primary-h);
   }
 
-  h3 {
+  &.status-done {
+    .board-card-container {
+      .board-card {
+        strong {
+          text-decoration: line-through;
+          color: var(--c-primary-h);
+        }
+      }
+    }
+  }
+
+  .status-chip {
     text-align: start;
     margin-bottom: var(--s-2);
     cursor: grab;
     padding: var(--s-2);
     transition: border 0.1s ease;
+
+    chip {
+      padding: var(--s-2) var(--s-3);
+      font-size: 18px;
+      font-weight: var(--f-bold);
+    }
   }
 }
 

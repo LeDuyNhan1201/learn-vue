@@ -1,11 +1,46 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { colDragReorder } from "@/hooks/ui/col-drag-reorder.ts";
-import { useGetStatusesQuery, useSearchTasksQuery } from "@/hooks/queries/task.query.ts";
+import {computed, onActivated, onMounted, ref} from "vue";
+import {colDragReorder} from "@/hooks/ui/col-drag-reorder.ts";
+import {useGetStatusesQuery, useSearchTasksQuery} from "@/hooks/queries/task.query.ts";
 import CellView from "@/components/TasksDashboard/CellView.vue";
 import FilterPopup from "@/components/TaskForm/FilterPopup.vue";
-import type { AdvanceFilterTaskRequest } from "@/types/tasks.schema.ts";
-import EditPopup from "@/components/TaskForm/EditPopup.vue";
+import {type AdvanceFilterTaskRequest, taskIdPathParam, type TaskItem} from "@/types/tasks.schema.ts";
+import {useConfirm} from "primevue/useconfirm";
+import {useToast} from "primevue/usetoast";
+import {useDeleteTaskMutation} from "@/hooks/mutations/task.mutation.ts";
+import {useRouter} from "vue-router";
+
+const confirm = useConfirm();
+const toast = useToast();
+const router = useRouter();
+const showAdvanceFilters = ref<boolean>(false);
+
+function showToast(severity: "success" | "error", summary: string, detail: string) {
+  toast.add({severity, summary, detail, life: 3000});
+}
+
+interface Column {
+  key: string;
+  label: string;
+}
+
+const columns = ref<Column[]>([
+  {key: "title", label: "Title"},
+  {key: "status", label: "Status"},
+  {key: "startDay", label: "Start Day"},
+  {key: "targetDay", label: "Target Day"},
+  {key: "endDay", label: "End Day"},
+  {key: "actions", label: "Actions"},
+]);
+
+const {
+  highlightIndex,
+  highlightSide,
+  onDragStart,
+  onDragEnd,
+  detectHighlight,
+  applyReorder
+} = colDragReorder<Column>();
 
 const {
   data: taskStatuses,
@@ -26,16 +61,25 @@ const {
   setToDate,
   setSorts,
 } = useSearchTasksQuery(
-  {
-    queries: {
-      page: 1,
-      size: 8,
+    {
+      queries: {
+        page: 1,
+        size: 7,
+      },
     },
-  },
-  { debounceMs: 400 },
+    {debounceMs: 400},
 );
 
-// Sample data
+onMounted(() => {
+  console.log("Mounted - fetching tasks");
+  refetch();
+});
+
+onActivated(() => {
+  console.log("Activated - fetching tasks");
+  refetch();
+});
+
 const statuses = computed(() => taskStatuses.value ?? []);
 const tasks = computed(() => data.value?.items ?? []);
 const total = computed(() => data.value?.total ?? 0);
@@ -47,55 +91,50 @@ const setFilters = (filters: AdvanceFilterTaskRequest) => {
   setSorts(filters.sorts ?? []);
 };
 
-interface Column {
-  key: string;
-  label: string;
-}
-
-// Columns definition (draggable)
-const columns = ref<Column[]>([
-  { key: "title", label: "Title" },
-  { key: "status", label: "Status" },
-  { key: "startDay", label: "Start Day" },
-  { key: "targetDay", label: "Target Day" },
-  { key: "endDay", label: "End Day" },
-]);
-
-const { highlightIndex, highlightSide, onDragStart, onDragEnd, detectHighlight, applyReorder } =
-  colDragReorder<Column>();
-
 const columnHighlightClasses = (index: number) => ({
   "highlight-left": highlightIndex.value === index && highlightSide.value === "left",
   "highlight-right": highlightIndex.value === index && highlightSide.value === "right",
 });
 
-const showEditing = ref(false);
-const selectedTaskId = ref<string | null>(null);
-
 function startEditing(taskId: string) {
-  selectedTaskId.value = taskId;
-  showEditing.value = true;
+  router.push(`/tasks/${taskId}/edit`);
 }
 
-function stopEditing() {
-  selectedTaskId.value = null;
-  refetch();
-  showEditing.value = false;
-}
+const {mutate: deleteMutate, isPending: deleteIsPending} = useDeleteTaskMutation();
 
-const showAdvanceFilters = ref<boolean>(false);
+function deleteTask(task: TaskItem) {
+  confirm.require({
+    message: `Are you sure you want to delete this task?`,
+    header: `Task '${task.title}'`,
+    icon: "",
+    acceptLabel: "Yes",
+    rejectLabel: "No",
+    accept: () => {
+      deleteMutate(taskIdPathParam.parse({id: task.id}), {
+        onSuccess: () => {
+          showToast("success", "Done", "Task has been deleted successfully");
+          refetch();
+        },
+        onError: (error) =>
+            showToast("error", "Task Deletion Failed", error.message || "An error occurred"),
+      });
+    },
+    reject: () => {
+    },
+  });
+}
 </script>
 
 <template>
   <div class="filter-bar">
     <input
-      v-model="filters.keyword"
-      class="search-input"
-      placeholder="Search..."
+        v-model="filters.keyword"
+        class="search-input"
+        placeholder="Search..."
     />
 
     <button
-      @click="
+        @click="
         () => {
           showAdvanceFilters = true;
         }
@@ -106,9 +145,9 @@ const showAdvanceFilters = ref<boolean>(false);
   </div>
 
   <FilterPopup
-    :filters="filters"
-    @update:filters="setFilters"
-    v-model:visible="showAdvanceFilters"
+      :filters="filters"
+      @update:filters="setFilters"
+      v-model:visible="showAdvanceFilters"
   />
 
   <div v-if="isLoading || statusesLoading">Loading...</div>
@@ -120,13 +159,13 @@ const showAdvanceFilters = ref<boolean>(false);
 
     <div class="table-wrapper">
       <table
-        class="task-table"
-        @dragover.prevent="(e) => detectHighlight(e, 'header')"
-        @drop="() => (columns = applyReorder(columns))"
+          class="task-table"
+          @dragover.prevent="(e) => detectHighlight(e, 'header')"
+          @drop="() => (columns = applyReorder(columns))"
       >
         <thead>
-          <tr>
-            <th
+        <tr>
+          <th
               class="header"
               v-for="(col, idx) in columns"
               :key="col.key"
@@ -134,45 +173,47 @@ const showAdvanceFilters = ref<boolean>(false);
               @dragstart="(e) => onDragStart(e, idx)"
               @dragend="onDragEnd"
               :class="columnHighlightClasses(idx)"
-            >
-              {{ col.label }}
-            </th>
-          </tr>
+          >
+            {{ col.label }}
+          </th>
+        </tr>
         </thead>
 
         <tbody>
-          <tr
+        <tr
             v-for="(task, _) in tasks"
             :key="task.id"
-          >
-            <td
+        >
+          <td
               v-for="(col, colIndex) in columns"
               :key="col.key"
-              @click.stop="startEditing(task.id!)"
               :class="columnHighlightClasses(colIndex)"
-            >
-              <CellView
+          >
+            <CellView
                 :task="task"
                 :col="col"
                 :statuses="statuses"
-              />
-            </td>
-          </tr>
+                :deleteIsPending="deleteIsPending"
+                @edit="startEditing(task.id!)"
+                @delete="deleteTask(task)"
+            />
+          </td>
+        </tr>
         </tbody>
-
-        <EditPopup
-          v-if="showEditing"
-          @stop="stopEditing"
-          v-model:visible="showEditing"
-          :taskId="selectedTaskId!"
-        />
       </table>
     </div>
 
     <div class="pagination">
       <button
-        :disabled="queries.page === 1"
-        @click="setPage(queries.page - 1)"
+          :disabled="queries.page === 1"
+          @click="() => {
+            setPage(queries.page - 1)
+            router.replace({
+              query: {
+                page: queries.page
+              },
+            });
+          }"
       >
         Previous
       </button>
@@ -180,8 +221,15 @@ const showAdvanceFilters = ref<boolean>(false);
       <span>Page {{ queries.page }} / {{ totalPages }}</span>
 
       <button
-        :disabled="queries.page === totalPages"
-        @click="setPage(queries.page + 1)"
+          :disabled="queries.page === totalPages"
+          @click="() => {
+            setPage(queries.page + 1)
+            router.replace({
+              query: {
+                page: queries.page
+              },
+            });
+          }"
       >
         Next
       </button>
@@ -195,6 +243,8 @@ const showAdvanceFilters = ref<boolean>(false);
       <span v-if="isFetching || statusesFetching">Refreshing...</span>
     </div>
   </div>
+
+  <RouterView/>
 </template>
 
 <style scoped>
@@ -224,7 +274,7 @@ const showAdvanceFilters = ref<boolean>(false);
 }
 
 .table-wrapper {
-  height: calc(var(--h-header) + var(--h-row) * 8 + var(--s-5));
+  height: calc(var(--h-header) + var(--h-row) * 7 + var(--s-5));
 }
 
 .task-table {

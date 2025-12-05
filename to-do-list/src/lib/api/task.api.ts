@@ -12,7 +12,7 @@ import {
   type UpdateTaskRequest,
   type UpdateTaskResponse,
   type UpdateTaskStatusRequest,
-} from "@/types/tasks.schema.ts";
+} from "@/types/index.ts";
 import { restClient } from "@/lib/rest-client.ts";
 import type { AxiosRequestConfig } from "axios";
 

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import TasksLayout from "@/views/layouts/TasksLayout.vue";
 import { useAutoScrollDuringDrag } from "@/hooks/ui/auto-scroll.ts";
 
 useAutoScrollDuringDrag({
@@ -11,7 +10,7 @@ useAutoScrollDuringDrag({
 <template>
   <ConfirmDialog />
   <Toast />
-  <TasksLayout />
+  <router-view />
 </template>
 
 <style scoped></style>

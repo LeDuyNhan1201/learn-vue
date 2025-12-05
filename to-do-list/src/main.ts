@@ -14,6 +14,7 @@ import TabMenu from "primevue/tabmenu";
 import DataTable from "primevue/datatable";
 import ConfirmDialog from "primevue/confirmdialog";
 import ConfirmPopup from "primevue/confirmpopup";
+import Chip from "primevue/chip";
 import ConfirmationService from "primevue/confirmationservice";
 import ToastService from "primevue/toastservice";
 import Toast from "primevue/toast";
@@ -50,6 +51,7 @@ app.component("DataTable", DataTable);
 app.component("ConfirmDialog", ConfirmDialog);
 app.component("ConfirmPopup", ConfirmPopup);
 app.component("Toast", Toast);
+app.component("Chip", Chip);
 
 // --- init user store from cookie ---
 const userStore = useUserStore();

@@ -35,14 +35,17 @@
   --c-primary: #646cff;
   --c-primary-h: #535bf2;
   --c-surface: #f7f7f7;
+  --c-status-todo: #f59e0b;
+  --c-status-inprogress: #3b82f6;
+  --c-status-done: #10b981;
 
   /* Dark mode support */
   color-scheme: light dark;
 
   --shadow-text: 0 0 0 3px rgba(99, 102, 241, 0.25);
 
-  --h-row: calc(var(--s-6) + var(--s-4) * 2);
-  --h-header: calc(var(--s-6) + var(--s-4) * 2);
+  --h-row: calc(var(--s-6) + var(--s-6) * 2);
+  --h-header: calc(var(--s-6) + var(--s-6) * 2);
 }
 
 /* ------------------ DARK MODE ------------------ */
@@ -133,14 +136,63 @@ button {
   font-weight: var(--f-weight);
   background: var(--c-surface);
   cursor: pointer;
-  transition:
-    border-color 0.25s ease,
-    background 0.25s ease;
+  transition: border-color 0.25s ease,
+  background 0.25s ease;
 
   &:hover {
     background: var(--c-primary-h);
     font-weight: var(--f-bold);
     color: #fff;
+  }
+}
+
+/* ------------------ CHIPS ------------------ */
+.p-chip {
+  background: var(--chip-bg);
+  color: var(--chip-color);
+  padding: var(--s-1) var(--s-2) !important;
+  font-size: 15px !important;
+  font-weight: var(--f-bold) !important;
+  border-radius: 9999px !important;
+
+  &.chip-success {
+    --chip-bg: rgba(16, 185, 129, 0.15);
+    --chip-color: rgb(16, 185, 129);
+  }
+
+  &.chip-warning {
+    --chip-bg: rgba(245, 158, 11, 0.15);
+    --chip-color: rgb(245, 158, 11);
+  }
+
+  &.chip-danger {
+    --chip-bg: rgba(239, 68, 68, 0.15);
+    --chip-color: rgb(239, 68, 68);
+  }
+
+  &.chip-info {
+    --chip-bg: rgba(59, 130, 246, 0.15);
+    --chip-color: rgb(59, 130, 246);
+  }
+
+  &.status-default {
+    background: #e5e7eb;
+    color: #374151;
+  }
+
+  &.status-todo {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
+  &.status-inprogress {
+    background: #fef3c7;
+    color: #b45309;
+  }
+
+  &.status-done {
+    background: #dcfce7;
+    color: #15803d;
   }
 }
 
@@ -218,7 +270,7 @@ button {
   background: var(--c-err-bg) !important;
 }
 
-/* Toast container */
+/* Toast containers */
 .p-toast {
   top: auto !important; /* hủy top mặc định */
   bottom: 1rem !important; /* cách dưới màn hình */
